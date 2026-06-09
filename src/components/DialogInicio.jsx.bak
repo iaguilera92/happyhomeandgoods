@@ -1,0 +1,280 @@
+﻿import React, { useState, useEffect } from "react";
+import { Dialog, DialogTitle, Button, Box, useTheme, useMediaQuery, IconButton } from "@mui/material";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
+import FamilyRestroomIcon from "@mui/icons-material/FamilyRestroom";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import StorefrontRoundedIcon from "@mui/icons-material/StorefrontRounded";
+import { useNavigate } from "react-router-dom";
+
+export default function DialogSelector({ open, onClose, onSelect }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const navigate = useNavigate();
+  const [selected, setSelected] = useState(null);
+
+  useEffect(() => {
+    if (open) setSelected(null);
+  }, [open]);
+
+  const options = [
+    { label: "For Kids", value: "kids", color: "rgb(0,117,86)", icon: <SportsEsportsIcon sx={{ mr: 1 }} /> },
+    { label: "Parents", value: "parents", color: "rgb(0,131,207)", icon: <FamilyRestroomIcon sx={{ mr: 1 }} /> },
+    { label: "Coaches", value: "coaches", color: "rgb(255,106,0)", icon: <EmojiEventsIcon sx={{ mr: 1 }} /> },
+  ];
+
+  const handleSelect = (option) => {
+    setSelected(option.value);
+    if (onSelect) onSelect(option.value);
+    if (option.value === "kids") {
+      navigate("/kids");
+    } else if (option.value === "parents") {
+      navigate("/parents");
+    }
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth={false}
+      BackdropProps={{
+        sx: { backgroundColor: "rgba(0,0,0,0.83)" },
+      }}
+      sx={{
+        "& .MuiDialog-container": {
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        },
+      }}
+      PaperProps={{
+        sx: {
+          width: { xs: "95%", sm: 700 },
+          minHeight: { xs: "50%", sm: 500 },
+          borderRadius: 3,
+          p: { xs: 3, sm: 5 },
+          background: "linear-gradient(135deg, #d6f5d0 0%, #8fd39a 58%, #e9fff2 100%)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+          overflow: "visible",
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          textAlign: "center",
+          fontWeight: 900,
+          fontSize: { xs: "1.05rem", sm: "1.6rem" },
+          fontFamily: "'Poppins', sans-serif",
+          mb: 2,
+          color: "#0d2b45",
+          letterSpacing: "0.03em",
+          lineHeight: 1.1,
+          px: 2,
+          py: 1,
+          borderRadius: 99,
+          background: "linear-gradient(180deg, rgba(255,255,255,0.82) 0%, rgba(232,247,255,0.74) 100%)",
+          border: "1px solid rgba(13,43,69,0.12)",
+          boxShadow: "0 8px 16px rgba(13,43,69,0.12)",
+        }}
+      >
+        {"Select your Category \u26F3"}
+        <IconButton
+          aria-label="Cerrar"
+          onClick={onClose}
+          sx={{
+            position: "absolute",
+            top: 8,
+            right: 8,
+            color: "black",
+            zIndex: 3,
+            width: 40,
+            height: 40,
+            "&:hover": { backgroundColor: "rgba(255,255,255,.15)" },
+            transition: "background-color 0.2s ease",
+            "@keyframes spinTwiceIcon": {
+              "0%": { transform: "rotate(0deg)" },
+              "100%": { transform: "rotate(720deg)" },
+            },
+          }}
+        >
+          <CloseRoundedIcon sx={{ fontSize: 28, animation: open ? "spinTwiceIcon 0.6s ease-in-out" : "none", transformOrigin: "center" }} />
+        </IconButton>
+      </DialogTitle>
+
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          mt: 1,
+        }}
+      >
+        {options.map((option) => (
+          <Box key={option.value}>
+            <Button
+              fullWidth
+              onClick={() => handleSelect(option)}
+              sx={{
+                fontWeight: 700,
+                textTransform: "none",
+                py: isMobile ? 2 : 2.5,
+                borderRadius: 2,
+                fontSize: isMobile ? "1.2rem" : "1.4rem",
+                position: "relative",
+                overflow: "hidden",
+                color: "#fff",
+
+                border: "3px solid #FFD700",
+                background: `linear-gradient(145deg, ${option.color} 0%, ${option.color} 70%, #fff 100%)`,
+                boxShadow: "0 6px 15px rgba(0,0,0,0.5), inset 0 -5px 8px rgba(255,255,255,0.15)",
+                transition: "all 0.2s ease",
+                "&::before": {
+                  content: '""',
+                  position: "absolute",
+                  top: -5,
+                  left: -5,
+                  right: -5,
+                  bottom: -5,
+                  borderRadius: "inherit",
+                  border: "2px solid rgba(255,255,255,0.15)",
+                  pointerEvents: "none",
+                  zIndex: 1,
+                  boxShadow: "0 0 15px rgba(255,255,255,0.2)",
+                },
+                "&:hover": {
+                  filter: "brightness(1.12)",
+                  transform: "scale(1.02)",
+                  boxShadow: "0 8px 20px rgba(0,0,0,0.6), inset 0 -6px 10px rgba(255,255,255,0.2)",
+                },
+              }}
+            >
+              {option.icon}
+              {option.label}
+            </Button>
+          </Box>
+        ))}
+      </Box>
+
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: { xs: -76, sm: -84 },
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: { xs: "72%", sm: 300 },
+          zIndex: 5,
+        }}
+      >
+        <Button
+          fullWidth
+          onClick={() => {
+            onClose?.();
+            navigate("/catalogo");
+          }}
+          sx={{
+            fontWeight: 800,
+            textTransform: "none",
+            py: 1.25,
+            borderRadius: 99,
+            fontSize: { xs: "1.05rem", sm: "1.15rem" },
+            position: "relative",
+            overflow: "hidden",
+            color: "#fff",
+
+            border: "2px solid rgba(255, 230, 120, 0.95)",
+            background: "linear-gradient(160deg, #FFE082 0%, #FFC43D 38%, #FFB300 62%, #E68A00 100%)",
+            boxShadow: "0 0 18px rgba(255, 195, 45, 0.72), 0 8px 20px rgba(120, 72, 0, 0.42), inset 0 2px 6px rgba(255,255,255,0.35), inset 0 -7px 12px rgba(130,80,0,0.28)",
+            backdropFilter: "blur(6px)",
+            animation: "royalFloat 3.2s ease-in-out infinite",
+            transition: "transform 0.24s, box-shadow 0.24s, filter 0.24s, background 0.24s",
+            "&::before": {
+              content: '""',
+              position: "absolute",
+              top: -28,
+              left: -60,
+              width: 64,
+              height: "165%",
+              background: "linear-gradient(110deg, rgba(255,255,255,0) 0%, rgba(255,247,210,0.75) 52%, rgba(255,255,255,0) 100%)",
+              transform: "skewX(-12deg)",
+              animation: "royalGoldSweep 3.1s cubic-bezier(.4,0,.2,1) infinite",
+            },
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              inset: 0,
+              borderRadius: "inherit",
+              background: "radial-gradient(circle at 22% 25%, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 44%), radial-gradient(circle at 78% 30%, rgba(255,245,210,0.2) 0%, rgba(255,255,255,0) 36%), radial-gradient(circle at 50% 75%, rgba(255,240,190,0.14) 0%, rgba(255,255,255,0) 42%)",
+              animation: "royalGoldPulse 2.4s ease-in-out infinite",
+              pointerEvents: "none",
+            },
+            "@keyframes royalGoldSweep": {
+              "0%": { left: "-70%", opacity: 0 },
+              "28%": { opacity: 0.85 },
+              "55%": { opacity: 0.55 },
+              "100%": { left: "135%", opacity: 0 },
+            },
+            "@keyframes royalGoldPulse": {
+              "0%": { opacity: 0.3 },
+              "50%": { opacity: 0.58 },
+              "100%": { opacity: 0.3 },
+            },
+            "@keyframes royalFloat": {
+              "0%": { transform: "translateY(0px)" },
+              "50%": { transform: "translateY(-2px)" },
+              "100%": { transform: "translateY(0px)" },
+            },
+            "&:hover": {
+              transform: "scale(1.05)",
+              filter: "brightness(1.1)",
+              background: "linear-gradient(160deg, #FFE79A 0%, #FFC94F 35%, #FFB623 62%, #F58B00 100%)",
+              boxShadow: "0 0 26px rgba(255, 210, 85, 0.92), 0 10px 24px rgba(120,72,0,0.54), inset 0 2px 7px rgba(255,255,255,0.42), inset 0 -7px 12px rgba(130,80,0,0.32)",
+            },
+            "&:active": {
+              transform: "translateY(1px) scale(0.99)",
+              boxShadow: "0 0 16px rgba(255, 190, 50, 0.75), 0 5px 12px rgba(120,72,0,0.4), inset 0 1px 5px rgba(255,255,255,0.3), inset 0 -5px 10px rgba(130,80,0,0.35)",
+            },
+            "@media (max-width: 420px)": {
+              letterSpacing: "0.01em",
+            },
+          }}
+        >
+          <StorefrontRoundedIcon sx={{ mr: 1, fontSize: { xs: 22, sm: 20 } }} />
+          Shop
+        </Button>
+      </Box>
+    </Dialog>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
