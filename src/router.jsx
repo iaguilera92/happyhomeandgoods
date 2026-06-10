@@ -10,7 +10,6 @@ const Contacto = lazy(() => import("./components/Contacto"));
 const Administracion = lazy(() => import("./components/Administracion"));
 const Home = lazy(() => import("./components/Home"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
-const Kids = lazy(() => import("./components/Kids"));
 const Parents = lazy(() => import("./components/Parents"));
 const Coaches = lazy(() => import("./components/Coaches"));
 const ConfigurarProductos = lazy(() => import("./components/configuraciones/ConfigurarProductos"));
@@ -86,11 +85,10 @@ const router = createBrowserRouter(
       children: [
         { path: "", element: <HomeWrapper /> },
         { path: "servicios", element: withSuspense(Servicios) },
-        { path: "aboutUs", element: withSuspense(Nosotros) },
+        { path: "nosotros", element: withSuspense(Nosotros) },
         { path: "contacto", element: withSuspense(Contacto) },
         { path: "administracion", element: withSuspense(Administracion) },
         { path: "dashboard", element: withSuspense(Dashboard) },
-        { path: "kids", element: withSuspense(Kids) },
         { path: "parents", element: withSuspense(Parents) },
         { path: "coaches", element: withSuspense(Coaches) },
         {

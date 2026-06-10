@@ -97,7 +97,7 @@ function Hero({ onStartClick }) {
           display: { xs: "none", sm: "block" },
           position: "absolute",
           inset: 0,
-          backgroundImage: "url(/fondo-principal.png)",
+          backgroundImage: "url(/fondo-principal.avif)",
           backgroundSize: "cover",
           backgroundPosition: { sm: "center -80px", md: "center -180px" },
           backgroundRepeat: "no-repeat",
@@ -153,9 +153,8 @@ function Hero({ onStartClick }) {
                 maxWidth: { xs: "82vw", sm: "520px" },
               }}
             >
-              Delivery en Santiago o{" "}
               <Box component="span" sx={{ fontWeight: 700, color: "#FFD54F" }}>
-                entrega presencial.
+                Delivery en Santiago.
               </Box>
             </Typography>
           </motion.div>
@@ -166,7 +165,7 @@ function Hero({ onStartClick }) {
             transition={{ duration: 0.5, ease: "easeOut", delay: 0.55 }}
             style={{ marginTop: isMobile ? "20px" : "52px" }}
           >
-            <button className="btn-3" onClick={() => navigate("/aboutUs")}>
+            <button className="btn-3" onClick={() => navigate("/nosotros")}>
               <span>Nosotros</span>
             </button>
           </motion.div>

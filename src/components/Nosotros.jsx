@@ -1,6 +1,4 @@
-﻿import { Box, Typography, Grid, Container, useTheme, useMediaQuery, Card, CardContent, Collapse, Dialog, DialogContent, IconButton } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { Box, Typography, Container, useTheme, useMediaQuery } from "@mui/material";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
@@ -8,17 +6,6 @@ const Nosotros = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [scrollY, setScrollY] = useState(0);
-  const [activeFounder, setActiveFounder] = useState(null);
-  const [dialogFounder, setDialogFounder] = useState(null);
-
-  const letterVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: (i) => ({
-      opacity: 1,
-      x: 0,
-      transition: { delay: 0.4 + i * 0.1 },
-    }),
-  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'auto' });
@@ -32,7 +19,6 @@ const Nosotros = () => {
     }
   }, [isMobile]);
 
-
   return (
     <Container
       maxWidth={false}
@@ -45,7 +31,6 @@ const Nosotros = () => {
         pb: 3.5,
         position: 'relative',
         overflow: 'hidden',
-        // ?? Fondo pasto golf
         backgroundColor: "#f8f6f1",
         backgroundSize: "420px 420px",
         backgroundRepeat: "repeat",
@@ -58,9 +43,9 @@ const Nosotros = () => {
         sx={{
           position: "relative",
           minHeight: { xs: 220, sm: 260, md: 300 },
-          backgroundImage: "url(/fondo-about-us.avif)",
+          backgroundImage: "url(/fondo-nosotros.avif)",
           backgroundSize: "cover",
-          backgroundPosition: { xs: "center 85%", md: "center 85%" },
+          backgroundPosition: { xs: "center 100%", md: "center 70%" },
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -100,7 +85,7 @@ const Nosotros = () => {
                 mb: { xs: 1, sm: 1.4 },
               }}
             >
-              About Us
+              Nosotros
             </Typography>
           </motion.div>
           <motion.div
@@ -108,15 +93,7 @@ const Nosotros = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: "easeOut", delay: 0.38 }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 1.5,
-                mx: "auto",
-              }}
-            >
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1.5, mx: "auto" }}>
               <Box sx={{ width: { xs: 28, sm: 42 }, height: 1.5, borderRadius: 99, background: "rgba(255,255,255,0.55)" }} />
               <Typography
                 sx={{
@@ -129,7 +106,7 @@ const Nosotros = () => {
                   whiteSpace: { xs: "nowrap", sm: "normal" },
                 }}
               >
-                Meet the team behind Golf in Colors
+                10 años llevando lo mejor para tu hogar
               </Typography>
               <Box sx={{ width: { xs: 28, sm: 42 }, height: 1.5, borderRadius: 99, background: "rgba(255,255,255,0.55)" }} />
             </Box>
@@ -137,15 +114,8 @@ const Nosotros = () => {
         </Container>
       </Box>
 
-      {/* Primera fila — Our Story */}
-      <Box
-        sx={{
-          maxWidth: "1100px",
-          mx: "auto",
-          mt: { xs: 5, sm: 6 },
-          px: { xs: 2.5, sm: 4, md: 6 },
-        }}
-      >
+      {/* ── Nuestra Historia ── */}
+      <Box sx={{ maxWidth: "1100px", mx: "auto", mt: { xs: 5, sm: 6 }, px: { xs: 2.5, sm: 4, md: 6 } }}>
         <Box
           sx={{
             display: "grid",
@@ -154,7 +124,6 @@ const Nosotros = () => {
             alignItems: "center",
           }}
         >
-          {/* Columna izquierda: texto */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -162,7 +131,6 @@ const Nosotros = () => {
             transition={{ duration: 0.7, ease: "easeOut" }}
           >
             <Box>
-              {/* Heading */}
               <Typography
                 sx={{
                   fontSize: { xs: "1.6rem", sm: "1.9rem", md: "2.2rem" },
@@ -185,14 +153,13 @@ const Nosotros = () => {
                   },
                 }}
               >
-                Where It All Began
+                Nuestra historia
               </Typography>
 
-              {/* Paragraphs */}
               {[
-                "Golf in Colors was founded by two partners who have experienced every stage of the game, from youth golf to high-level competition. Along the way, they noticed a challenging reality: many children are introduced to golf, but only a few continue, compete, or make it a lasting part of their lives.",
-                "Golf in Colors aims to make those early experiences more engaging, positive, and meaningful by combining creativity, storytelling, and simple skill development — connecting what children learn on the course with meaningful moments at home.",
-                "By linking learning on and off the course, Golf in Colors helps children build confidence, develop essential life skills, and create a genuine and lasting connection with the game.",
+                "Hace más de 10 años comenzamos con una idea simple: acercar productos de calidad para el hogar a las familias de Santiago, sin complicaciones. Lo que empezó como un pequeño emprendimiento creció gracias a la confianza de cientos de clientes que nos eligen cada día.",
+                "Trabajamos para que encontrar lo que necesitas sea fácil y rápido. Nos contactas por WhatsApp o redes sociales, confirmamos tu pedido y te lo hacemos llegar a domicilio en Santiago.",
+                "Cada entrega es un compromiso: productos en perfectas condiciones, atención cercana y la satisfacción de saber que estás comprando con alguien en quien puedes confiar.",
               ].map((text, i) => (
                 <Typography
                   key={i}
@@ -210,7 +177,6 @@ const Nosotros = () => {
             </Box>
           </motion.div>
 
-          {/* Columna derecha: logo en círculo */}
           <motion.div
             initial={{ opacity: 0, x: 40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -239,18 +205,14 @@ const Nosotros = () => {
                   },
                 }}
               >
-                <Box
-                  component="img"
-                  src="/logo.png"
-                  alt="Happy Home & Goods"
-                  sx={{ width: "82%", height: "auto" }}
-                />
+                <Box component="img" src="/logo.png" alt="Happy Home & Goods" sx={{ width: "82%", height: "auto" }} />
               </Box>
             </Box>
           </motion.div>
         </Box>
       </Box>
 
+      {/* ── Banner intermedio ── */}
       <Box
         sx={{
           width: '100vw',
@@ -258,7 +220,7 @@ const Nosotros = () => {
           mt: 4,
           mb: 4,
           py: { xs: 2.6, md: 3.2 },
-          backgroundImage: 'url(/fondo-5.jpg)',
+          backgroundImage: 'url(/fondo-telefono.webp)',
           backgroundSize: 'cover',
           backgroundPosition: isMobile ? `center ${scrollY * 0.3}px` : 'center',
           backgroundAttachment: isMobile ? 'scroll' : 'fixed',
@@ -275,34 +237,19 @@ const Nosotros = () => {
           },
         }}
       >
-        <Container
-          maxWidth="lg"
-          sx={{
-            width: '100%',
-            px: 2,
-            position: 'relative',
-            zIndex: 2,
-          }}
-        >
+        <Container maxWidth="lg" sx={{ width: '100%', px: 2, position: 'relative', zIndex: 2 }}>
           <Typography
             variant={isMobile ? "h6" : "h4"}
             fontWeight={600}
-            sx={{
-              color: '#ffffff',
-              textShadow: '2px 2px 8px rgba(0,0,0,0.8)',
-              textAlign: 'center',
-              letterSpacing: '0.02em',
-            }}
+            sx={{ color: '#ffffff', textShadow: '2px 2px 8px rgba(0,0,0,0.8)', textAlign: 'center', letterSpacing: '0.02em' }}
           >
-            We inspire and teach <span style={{ color: '#FDBB2F' }}>Golf</span>
+            Delivery en <span style={{ color: '#FDBB2F' }}>Santiago</span>
           </Typography>
         </Container>
       </Box>
 
-      {/* ── Purpose / Mission / Vision ── */}
-      <Box sx={{ maxWidth: "1100px", mx: "auto", mt: { xs: 5, sm: 6 }, px: { xs: 2.5, sm: 4, md: 6 } }}>
-
-        {/* Purpose — full width dark */}
+      {/* ── Propósito / Misión / Visión ── */}
+      <Box sx={{ maxWidth: "1100px", mx: "auto", mt: { xs: 5, sm: 6 }, px: { xs: 2.5, sm: 4, md: 6 }, pb: 4 }}>
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -323,26 +270,17 @@ const Nosotros = () => {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
               <Box sx={{ width: 28, height: 3, borderRadius: 99, background: "#FDBB2F" }} />
               <Typography sx={{ fontSize: "0.9rem", fontWeight: 700, color: "#FDBB2F", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "'Poppins', sans-serif" }}>
-                Purpose
+                Propósito
               </Typography>
             </Box>
-
             <Typography
-              sx={{
-                fontSize: { xs: "1.05rem", sm: "1.3rem" },
-                fontWeight: 700,
-                color: "#ffffff",
-                fontFamily: "'Poppins', sans-serif",
-                lineHeight: 1.55,
-                mb: 2,
-              }}
+              sx={{ fontSize: { xs: "1.05rem", sm: "1.3rem" }, fontWeight: 700, color: "#ffffff", fontFamily: "'Poppins', sans-serif", lineHeight: 1.55, mb: 2 }}
             >
-              Helping children fall in love with golf from an early age — in a way that feels fun, natural, and meaningful.
+              Llevar lo mejor para tu hogar de forma simple, rápida y con la calidez de quien te atiende de verdad.
             </Typography>
-
             {[
-              "We believe that a passion for golf is not built only on the driving range or the putting green. It grows through experiences, shared moments, and emotional connections — both on the course and beyond it.",
-              "These shared experiences extend what children learn in lessons, and turn every step of the journey into an opportunity to connect and enjoy the game together.",
+              "Creemos que comprar no debería ser complicado. Por eso nuestro proceso es directo: nos escribes, coordinamos y te despachamos. Sin formularios, sin esperas innecesarias.",
+              "Con más de 10 años en el rubro, hemos aprendido que la confianza se construye entrega a entrega, y eso es exactamente lo que hacemos cada día con cada cliente.",
             ].map((t, i) => (
               <Typography key={i} sx={{ fontSize: { xs: "0.85rem", sm: "0.92rem" }, color: "rgba(255,255,255,0.76)", lineHeight: 1.8, mb: i === 0 ? 1.4 : 0, fontFamily: "'Poppins', sans-serif" }}>
                 {t}
@@ -351,26 +289,15 @@ const Nosotros = () => {
           </Box>
         </motion.div>
 
-        {/* Mission + Vision — 2 columnas */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-            gap: { xs: 2, sm: 2.5 },
-          }}
-        >
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: { xs: 2, sm: 2.5 } }}>
           {[
             {
-              label: "Mission",
-              accent: "#1B83CC",
-              letter: "M",
-              text: "At Golf in Colors, our mission is to inspire children to discover golf in a fun, creative, and meaningful way. We support parents and coaches with tools, learning materials, and experiences designed to make the game engaging, natural, and emotionally positive for young players. Through this approach, we aim to create environments where curiosity, joy, and motivation encourage children to continue exploring and enjoying the game.",
+              label: "Misión", accent: "#1B83CC", letter: "M",
+              text: "Nuestra misión es conectar a las familias de Santiago con productos de calidad para el hogar, a través de un servicio de compra simple, cercano y confiable. Atendemos por WhatsApp y redes sociales, coordinamos cada pedido de forma personalizada y despachamos a domicilio en Santiago — todo pensado para que tu experiencia sea cómoda y sin complicaciones.",
             },
             {
-              label: "Vision",
-              accent: "#FF6A00",
-              letter: "V",
-              text: "Our vision is to help shape a new generation of golfers who grow up seeing the game as more than a sport — an experience that sparks imagination, builds confidence, and strengthens family bonds. We aspire to become a global reference in children's golf by creating a community where learning the game extends beyond the course, turning golf into a joyful journey that children and families can share for a lifetime.",
+              label: "Visión", accent: "#FF6A00", letter: "V",
+              text: "Nuestra visión es ser el referente de confianza en venta de productos para el hogar en Santiago, reconocidos por la calidad de nuestra atención y la rapidez de nuestras entregas. Queremos que cada familia que nos elija sienta que tiene a alguien cercano con quien contar — un negocio que cuida cada detalle y pone la satisfacción del cliente por encima de todo.",
             },
           ].map((item, i) => (
             <motion.div
@@ -395,38 +322,16 @@ const Nosotros = () => {
                   overflow: "hidden",
                 }}
               >
-                <Typography
-                  sx={{
-                    position: "absolute",
-                    bottom: -20,
-                    right: 10,
-                    fontSize: "7rem",
-                    fontWeight: 900,
-                    color: `${item.accent}08`,
-                    lineHeight: 1,
-                    fontFamily: "'Poppins', sans-serif",
-                    userSelect: "none",
-                    pointerEvents: "none",
-                  }}
-                >{item.letter}</Typography>
-
+                <Typography sx={{ position: "absolute", bottom: -20, right: 10, fontSize: "7rem", fontWeight: 900, color: `${item.accent}08`, lineHeight: 1, fontFamily: "'Poppins', sans-serif", userSelect: "none", pointerEvents: "none" }}>
+                  {item.letter}
+                </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.8 }}>
                   <Box sx={{ width: 8, height: 8, borderRadius: "50%", background: item.accent, flexShrink: 0 }} />
                   <Typography sx={{ fontSize: "0.9rem", fontWeight: 700, color: item.accent, letterSpacing: "0.12em", textTransform: "uppercase", fontFamily: "'Poppins', sans-serif" }}>
                     {item.label}
                   </Typography>
                 </Box>
-
-                <Typography
-                  sx={{
-                    fontSize: { xs: "0.87rem", sm: "0.93rem" },
-                    color: "#3d5a4f",
-                    lineHeight: 1.82,
-                    fontFamily: "'Poppins', sans-serif",
-                    position: "relative",
-                    zIndex: 1,
-                  }}
-                >
+                <Typography sx={{ fontSize: { xs: "0.87rem", sm: "0.93rem" }, color: "#3d5a4f", lineHeight: 1.82, fontFamily: "'Poppins', sans-serif", position: "relative", zIndex: 1 }}>
                   {item.text}
                 </Typography>
               </Box>
@@ -434,352 +339,9 @@ const Nosotros = () => {
           ))}
         </Box>
       </Box>
-      {/* Seccion Founders */}
-      <Box maxWidth="1200px" mx="auto" mt={6} mb={3} textAlign="center" px={{ xs: 2.5, sm: 0 }}>
-        <Typography
-          sx={{
-            fontSize: { xs: "1.6rem", sm: "1.9rem", md: "2.2rem" },
-            fontWeight: 900,
-            fontFamily: "'Poppins', sans-serif",
-            color: "#0c2a1e",
-            lineHeight: 1.15,
-            mb: 3,
-            display: "inline-block",
-            position: "relative",
-            "&::after": {
-              content: '""',
-              position: "absolute",
-              bottom: -8,
-              left: 0,
-              width: "100%",
-              height: 3,
-              borderRadius: 99,
-              background: "linear-gradient(90deg, #017458 0%, rgba(1,116,88,0.2) 100%)",
-            },
-          }}
-        >
-          Co-Founders
-        </Typography>
-        {/* Cards */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
-            gap: { xs: 2.5, sm: 4 },
-            maxWidth: 720,
-            mx: "auto",
-            mt: 1.5,
-          }}
-        >
-          {[
-            { key: "anika", img: "anika.jpeg", name: "Anika Veintemilla", role: "Co-Founder & CEO", objPos: "center bottom" },
-            { key: "sergio", img: "sergio.jpeg", name: "Sergio Murtinho", role: "Co-Founder", objPos: "center 30%" },
-          ].map((coach, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.6, ease: "easeOut", delay: index * 0.14 }}
-            >
-              <Box
-                onClick={() => isMobile ? setDialogFounder(coach.key) : setActiveFounder((prev) => (prev === coach.key ? null : coach.key))}
-                sx={{
-                  cursor: "pointer",
-                  borderRadius: 3,
-                  overflow: "hidden",
-                  border: activeFounder === coach.key
-                    ? "2px solid #FDBB2F"
-                    : "2px solid transparent",
-                  boxShadow: activeFounder === coach.key
-                    ? "0 0 0 3px rgba(253,187,47,0.22), 0 16px 36px rgba(0,0,0,0.14)"
-                    : "0 8px 28px rgba(0,0,0,0.1)",
-                  transition: "all 0.3s ease",
-                  background: "#ffffff",
-                  "&:hover": {
-                    transform: "translateY(-4px)",
-                    boxShadow: "0 18px 40px rgba(0,0,0,0.14)",
-                  },
-                }}
-              >
-                {/* Card = imagen completa con overlay abajo */}
-                <Box sx={{ position: "relative", width: "100%", aspectRatio: { xs: "1/1", sm: "3/4" }, overflow: "hidden" }}>
-                  <Box
-                    component="img"
-                    src={`/${coach.img}`}
-                    alt={coach.name}
-                    sx={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      objectPosition: coach.objPos,
-                      transition: "transform 0.4s ease",
-                      "&:hover": { transform: "scale(1.04)" },
-                    }}
-                  />
-
-                  {/* Gradient overlay */}
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      height: "55%",
-                      background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.1) 70%, transparent 100%)",
-                    }}
-                  />
-
-                  {/* Info superpuesta */}
-                  <Box
-                    sx={{
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      px: { xs: 2, sm: 2.2 },
-                      py: { xs: 1.8, sm: 2 },
-                      textAlign: "left",
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        fontWeight: 800,
-                        fontSize: { xs: "1rem", sm: "1.06rem" },
-                        color: "#ffffff",
-                        fontFamily: "'Poppins', sans-serif",
-                        textShadow: "0 1px 6px rgba(0,0,0,0.5)",
-                        mb: 0.2,
-                      }}
-                    >
-                      {coach.name}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        fontSize: "0.73rem",
-                        color: "rgba(255,255,255,0.8)",
-                        fontWeight: 500,
-                        letterSpacing: "0.03em",
-                        fontFamily: "'Poppins', sans-serif",
-                        mb: 1.2,
-                      }}
-                    >
-                      {coach.role} · Golf in Colors
-                    </Typography>
-
-                    <Box
-                      sx={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 0.5,
-                        px: 1.2,
-                        py: 0.38,
-                        borderRadius: 99,
-                        border: "1px solid rgba(255,255,255,0.5)",
-                        background: activeFounder === coach.key ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.1)",
-                        backdropFilter: "blur(4px)",
-                        transition: "all 0.2s ease",
-                      }}
-                    >
-                      <Typography sx={{ fontSize: "0.73rem", fontWeight: 700, color: "#ffffff", fontFamily: "'Poppins', sans-serif" }}>
-                        {activeFounder === coach.key ? "Close" : "Read more"}
-                      </Typography>
-                      <KeyboardArrowDownIcon
-                        sx={{
-                          fontSize: 15,
-                          color: "#ffffff",
-                          transform: activeFounder === coach.key ? "rotate(180deg)" : "rotate(0deg)",
-                          transition: "transform 0.22s ease",
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
-            </motion.div>
-          ))}
-        </Box>
-
-        {/* Bio expandida */}
-        <Collapse in={Boolean(activeFounder)} timeout={350} unmountOnExit>
-          <Box
-            sx={{
-              maxWidth: 720,
-              mx: "auto",
-              mt: 2,
-              borderRadius: 3,
-              background: "#ffffff",
-              border: "1px solid rgba(1,116,88,0.12)",
-              borderLeft: "4px solid #017458",
-              px: { xs: 2.5, sm: 3.5 },
-              py: { xs: 2, sm: 2.5 },
-              textAlign: "left",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.07)",
-            }}
-          >
-            <Typography
-              sx={{
-                fontSize: { xs: "1rem", sm: "1.1rem" },
-                fontWeight: 800,
-                color: "#017458",
-                fontFamily: "'Poppins', sans-serif",
-                mb: 0.3,
-              }}
-            >
-              {activeFounder === "anika" ? "Anika Veintemilla" : "Sergio Murtinho"}
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: "0.75rem",
-                color: "#5a8a7a",
-                fontWeight: 600,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                fontFamily: "'Poppins', sans-serif",
-                mb: 2,
-              }}
-            >
-              {activeFounder === "anika" ? "Co-Founder & CEO" : "Co-Founder"}
-            </Typography>
-
-            {activeFounder === "anika" ? (
-              <>
-                {[
-                  "Anika Veintemilla has a lifelong connection to the game of golf, built through years of competitive play and international representation. A former collegiate golfer, she competed for four years at Baylor University and one year at Florida International University (FIU) and represented the Ecuadorian Golf Federation in numerous international competitions, including South American Championships, The British Amateur, and the U.S. Mid-Amateur Championship. She also represented Ecuador at the Pan American Games (2023) and the World Amateur Team Championship (2016).",
-                  "During her junior career, Anika became the first and only Ecuadorian to qualify for the U.S. Girls' Junior Championship, and later the only Ecuadorian to receive an exemption into the U.S. Mid-Amateur Championship, both prestigious amateur events.",
-                  "She is currently Ecuador's top-ranked women's amateur golfer and reached a career-high world ranking of 430 in the World Amateur Golf Ranking (WAGR).",
-                  "In 2024, she began volunteering at a golf academy, where she discovered her passion for inspiring the next generation to develop a love for the game. As co-founder of Golf in Colors, she is dedicated to helping children discover golf through creativity, positive learning experiences, and meaningful family moments.",
-                ].map((t, i, arr) => (
-                  <Typography key={i} variant="body2" sx={{ color: "#3d5a4f", lineHeight: 1.8, mb: i < arr.length - 1 ? 1.1 : 0, fontFamily: "'Poppins', sans-serif" }}>{t}</Typography>
-                ))}
-              </>
-            ) : (
-              <>
-                {[
-                  "Sergio Murtinho has dedicated much of his life to the game of golf as a player, coach, and manager. Through years of competitive play and coaching experience, he has developed a deep understanding of the game and a passion for helping others improve while truly enjoying the sport.",
-                  "Throughout his career, Sergio has worked extensively with junior golfers, focusing on creating positive and supportive learning environments where young players can build confidence, develop their skills, and enjoy the process of learning the game. His coaching style is enthusiastic, creative, and full of energy, driven by a genuine desire to contribute to the growth and development of golf worldwide.",
-                  "As the father of young athletes, Sergio also understands firsthand the importance of creating meaningful sports experiences for children and families. This personal perspective has helped shape his approach to coaching and youth development.",
-                  "Sergio's passion for golf also led him to develop a project in his home country of Ecuador, helping create greater public access to the game and encouraging many young players to take their first steps in golf.",
-                  "As Co-Founder of Golf in Colors, Sergio is committed to helping children discover the game in a way that inspires curiosity, builds confidence, and fosters a lifelong love for golf.",
-                ].map((t, i, arr) => (
-                  <Typography key={i} variant="body2" sx={{ color: "#3d5a4f", lineHeight: 1.8, mb: i < arr.length - 1 ? 1.1 : 0, fontFamily: "'Poppins', sans-serif" }}>{t}</Typography>
-                ))}
-              </>
-            )}
-          </Box>
-        </Collapse>
-      </Box>
-
-      {/* ── Dialog mobile ── */}
-      <Dialog
-        open={Boolean(dialogFounder)}
-        onClose={() => setDialogFounder(null)}
-        fullWidth
-        maxWidth="sm"
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            mx: 2,
-            maxHeight: "85vh",
-            display: "flex",
-            flexDirection: "column",
-          },
-        }}
-      >
-        {dialogFounder && (
-          <>
-            {/* Header */}
-            <Box sx={{ px: 2.5, pt: 2.5, pb: 1.5, borderBottom: "1px solid rgba(1,116,88,0.12)", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
-              <Box>
-                <Typography sx={{ fontWeight: 800, fontSize: "1.08rem", color: "#0c2a1e", fontFamily: "'Poppins', sans-serif", mb: 0.3 }}>
-                  {dialogFounder === "anika" ? "Anika Veintemilla" : "Sergio Murtinho"}
-                </Typography>
-                <Typography sx={{ fontSize: "0.74rem", color: "#017458", fontWeight: 600, fontFamily: "'Poppins', sans-serif" }}>
-                  {dialogFounder === "anika" ? "Co-Founder & CEO" : "Co-Founder"} · Golf in Colors
-                </Typography>
-              </Box>
-              <IconButton onClick={() => setDialogFounder(null)} sx={{ color: "#5a8a7a", p: 0.5, mt: -0.3 }}>
-                <CloseIcon sx={{ fontSize: 20 }} />
-              </IconButton>
-            </Box>
-
-            {/* Bio */}
-            <DialogContent sx={{ px: 2.5, pt: 2, pb: 3, overflowY: "auto" }}>
-              {(dialogFounder === "anika" ? [
-                "Anika Veintemilla has a lifelong connection to the game of golf, built through years of competitive play and international representation. A former collegiate golfer, she competed for four years at Baylor University and one year at Florida International University (FIU) and represented the Ecuadorian Golf Federation in numerous international competitions, including South American Championships, The British Amateur, and the U.S. Mid-Amateur Championship. She also represented Ecuador at the Pan American Games (2023) and the World Amateur Team Championship (2016).",
-                "During her junior career, Anika became the first and only Ecuadorian to qualify for the U.S. Girls' Junior Championship, and later the only Ecuadorian to receive an exemption into the U.S. Mid-Amateur Championship, both prestigious amateur events.",
-                "She is currently Ecuador's top-ranked women's amateur golfer and reached a career-high world ranking of 430 in the World Amateur Golf Ranking (WAGR).",
-                "In 2024, she began volunteering at a golf academy, where she discovered her passion for inspiring the next generation to develop a love for the game. As co-founder of Golf in Colors, she is dedicated to helping children discover golf through creativity, positive learning experiences, and meaningful family moments.",
-              ] : [
-                "Sergio Murtinho has dedicated much of his life to the game of golf as a player, coach, and manager. Through years of competitive play and coaching experience, he has developed a deep understanding of the game and a passion for helping others improve while truly enjoying the sport.",
-                "Throughout his career, Sergio has worked extensively with junior golfers, focusing on creating positive and supportive learning environments where young players can build confidence, develop their skills, and enjoy the process of learning the game. His coaching style is enthusiastic, creative, and full of energy, driven by a genuine desire to contribute to the growth and development of golf worldwide.",
-                "As the father of young athletes, Sergio also understands firsthand the importance of creating meaningful sports experiences for children and families. This personal perspective has helped shape his approach to coaching and youth development.",
-                "Sergio's passion for golf also led him to develop a project in his home country of Ecuador, helping create greater public access to the game and encouraging many young players to take their first steps in golf.",
-                "As Co-Founder of Golf in Colors, Sergio is committed to helping children discover the game in a way that inspires curiosity, builds confidence, and fosters a lifelong love for golf.",
-              ]).map((t, i, arr) => (
-                <Typography key={i} variant="body2" sx={{ color: "#3d5a4f", lineHeight: 1.8, mb: i < arr.length - 1 ? 1.2 : 0, fontFamily: "'Poppins', sans-serif", fontSize: "0.9rem" }}>{t}</Typography>
-              ))}
-            </DialogContent>
-          </>
-        )}
-      </Dialog>
 
     </Container>
   );
 };
 
 export default Nosotros;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -14,8 +14,9 @@ const TikTokIcon = (props) => (
 
 const quickLinks = [
   { label: "Inicio", path: "/" },
-  { label: "Nosotros", path: "/aboutUs" },
+  { label: "Nosotros", path: "/nosotros" },
   { label: "Contacto", path: "/contacto" },
+  { label: "Administración", path: "/administracion" },
 ];
 
 const Footer = () => {
@@ -53,7 +54,7 @@ const Footer = () => {
             </Box>
 
             <Typography sx={{ fontFamily: "'Poppins', sans-serif", fontSize: "0.82rem", color: "#5a7068", lineHeight: 1.7, mb: 2, maxWidth: 260 }}>
-              Productos para el hogar con delivery en Santiago y entrega presencial. Compra fácil por WhatsApp o redes sociales.
+              Productos para el hogar con delivery en Santiago. Compra fácil por WhatsApp o redes sociales.
             </Typography>
 
             <Box sx={{ display: "flex", gap: 1.2 }}>

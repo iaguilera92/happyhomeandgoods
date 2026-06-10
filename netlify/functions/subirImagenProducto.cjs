@@ -6,9 +6,9 @@ const AWS = require('aws-sdk');
 const s3 = new AWS.S3({
     region: process.env.AWS_REGION || 'us-east-2',
     accessKeyId:
-        process.env.MY_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID,
+        process.env.MY_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey:
-        process.env.MY_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY,
+        process.env.MY_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY,
 });
 
 // ==========================
@@ -61,7 +61,7 @@ exports.handler = async (event) => {
             'image/png',
             'image/x-png',
             'image/webp',
-            'image/avif',   // ✅ AVIF
+            'image/avif',
         ];
 
         if (!allowedTypes.includes(contentType)) {
@@ -74,8 +74,11 @@ exports.handler = async (event) => {
 
         const extMap = {
             'image/jpeg': 'jpg',
-            'image/png': 'png',
+            'image/jpg':  'jpg',
+            'image/png':  'png',
+            'image/x-png':'png',
             'image/webp': 'webp',
+            'image/avif': 'avif',
         };
 
         // ==========================

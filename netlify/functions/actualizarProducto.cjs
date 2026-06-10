@@ -3,13 +3,13 @@ const XLSX = require("xlsx");
 require("dotenv").config();
 
 const BUCKET_NAME = process.env.BUCKET_NAME;
-const REGION = process.env.MY_AWS_REGION || "us-east-1";
+const REGION = process.env.MY_AWS_REGION || process.env.AWS_REGION || "us-east-1";
 const FILE_KEY = "Productos.xlsx";
 
-if (process.env.MY_AWS_ACCESS_KEY_ID && process.env.MY_AWS_SECRET_ACCESS_KEY) {
+if (process.env.MY_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID && process.env.MY_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY) {
     AWS.config.update({
-        accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY,
+        accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY,
         region: REGION,
     });
 } else {
@@ -100,6 +100,23 @@ exports.handler = async (event) => {
                 ? producto.ImageUrl
                 : productoAnterior?.ImageUrl || "";
 
+        // 🔹 Validar que no haya otro producto destacado
+        if (producto.Destacado) {
+            const otroDestacado = datos.find(
+                (row) => String(row.Destacado).toLowerCase() === "true" &&
+                         Number(row.IdProducto) !== idFinal
+            );
+            if (otroDestacado) {
+                return {
+                    statusCode: 400,
+                    headers: corsHeaders,
+                    body: JSON.stringify({
+                        message: `Ya existe un producto destacado: "${otroDestacado.NombreProducto}". Quitale el destacado primero.`,
+                    }),
+                };
+            }
+        }
+
         // 🔹 Si es edición, eliminar registro anterior
         if (!esNuevo) {
             datos = datos.filter(
@@ -107,22 +124,39 @@ exports.handler = async (event) => {
             );
         }
 
+        // 🔹 Resolver video final
+        const videoFinal =
+            producto.VideoUrl && producto.VideoUrl.trim() !== ""
+                ? producto.VideoUrl
+                : productoAnterior?.VideoUrl || "";
+
         // 🔹 Construir producto final
         const nuevoProducto = {
-            IdProducto: idFinal,
+            IdProducto:     idFinal,
             NombreProducto: producto.NombreProducto,
-            Descripcion: producto.Descripcion || "",
-            Valor: producto.Valor,
-            Stock: producto.Stock,
-            ImageUrl: imageFinal,
-            ConDescuento: producto.ConDescuento ? true : false,
-            VideoUrl: producto.VideoUrl || "",
+            Descripcion:    producto.Descripcion    || "",
+            Categoria:      producto.Categoria      || "",
+            Valor:          producto.Valor,
+            ValorOriginal:  producto.ValorOriginal  || "",
+            Stock:          producto.Stock,
+            Activo:         producto.Activo !== false ? true : false,
+            Destacado:      producto.Destacado ? true : false,
+            ConDescuento:   producto.ConDescuento ? true : false,
+            Orden:          producto.Orden          || 9999,
+            ImageUrl:       imageFinal,
+            VideoUrl:       videoFinal,
         };
 
         datos.push(nuevoProducto);
 
-        // 🔹 Guardar Excel actualizado
-        const nuevaHoja = XLSX.utils.json_to_sheet(datos);
+        // 🔹 Guardar Excel actualizado (siempre con cabeceras fijas)
+        const COLUMNAS = [
+            "IdProducto", "NombreProducto", "Descripcion", "Categoria",
+            "Valor", "ValorOriginal", "Stock", "Activo", "Destacado",
+            "ConDescuento", "Orden", "ImageUrl", "VideoUrl"
+        ];
+
+        const nuevaHoja = XLSX.utils.json_to_sheet(datos, { header: COLUMNAS });
         workbook.Sheets[sheetName] = nuevaHoja;
 
         const buffer = XLSX.write(workbook, {

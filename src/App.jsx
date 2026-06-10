@@ -41,8 +41,6 @@ function App() {
   const [snackbarVersion, setSnackbarVersion] = useState({ open: false, version: "", });
   const triggerInformations = (value) => setShouldAnimateInformations(value);
   const [isRouteFallbackVisible, setIsRouteFallbackVisible] = useState(false);
-  const [isKidsBookFullscreen, setIsKidsBookFullscreen] = useState(false);
-
   useEffect(() => {
     const handleRouteFallback = (event) => {
       setIsRouteFallbackVisible(Boolean(event?.detail?.visible));
@@ -50,15 +48,6 @@ function App() {
 
     window.addEventListener("route-fallback-visibility", handleRouteFallback);
     return () => window.removeEventListener("route-fallback-visibility", handleRouteFallback);
-  }, []);
-
-  useEffect(() => {
-    const handleKidsBookFullscreen = (event) => {
-      setIsKidsBookFullscreen(Boolean(event?.detail?.visible));
-    };
-
-    window.addEventListener("kids-book-fullscreen", handleKidsBookFullscreen);
-    return () => window.removeEventListener("kids-book-fullscreen", handleKidsBookFullscreen);
   }, []);
 
   useEffect(() => {
@@ -282,7 +271,7 @@ function App() {
       {/* Contenido principal, oculto mientras se carga */}
       <Box sx={{ visibility: showApp ? "visible" : "hidden", pointerEvents: showApp ? "auto" : "none", overflowX: 'hidden' }}>
         {/* Navbar solo si no estÃƒÆ’Ã‚Â¡s en /administracion */}
-        {location.pathname !== "/administracion" && !isKidsBookFullscreen && (
+        {location.pathname !== "/administracion" && (
           <div className="app-chrome">
             <Suspense fallback={null}>
               <Navbar contactoRef={contactoRef} informationsRef={informationsRef} videoReady={videoReady} />
@@ -303,13 +292,13 @@ function App() {
         )}
 
         {/* Footer (excepto en administraciÃƒÆ’Ã‚Â³n) */}
-        {!isRouteFallbackVisible && !isKidsBookFullscreen && location.pathname !== "/administracion" && location.pathname !== "/dashboard" && location.pathname !== "/configurar-productos" && location.pathname !== "/configurar-trabajos" && (
+        {!isRouteFallbackVisible && location.pathname !== "/administracion" && location.pathname !== "/dashboard" && location.pathname !== "/configurar-productos" && location.pathname !== "/configurar-trabajos" && (
           <div className="app-chrome">
             <Footer />
           </div>
         )}
         {/* BotÃƒÆ’Ã‚Â³n WhatsApp */}
-        {!isRouteFallbackVisible && !isKidsBookFullscreen && location.pathname !== "/administracion" && location.pathname !== "/dashboard" && location.pathname !== "/configurar-productos" && location.pathname !== "/configurar-trabajos" && (
+        {!isRouteFallbackVisible && location.pathname !== "/administracion" && location.pathname !== "/dashboard" && location.pathname !== "/configurar-productos" && location.pathname !== "/configurar-trabajos" && (
           <Box sx={{ position: "fixed", bottom: "20px", right: "20px", zIndex: 100, transition: "bottom 0.3s ease", }}>
             <IconButton onClick={() => { window.open("https://api.whatsapp.com/send?phone=15617975986", "_blank"); setHasInteracted(true); }} sx={{
               width: 60, height: 60, backgroundColor: "#25d366", color: "#FFF", borderRadius: "50%", boxShadow: "2px 2px 3px #999", "&:hover": { backgroundColor: "#1ebe5d" }, zIndex: 101
@@ -344,7 +333,7 @@ function App() {
         )}
 
         {/* BotÃƒÆ’Ã‚Â³n scroll arriba */}
-        {showArrow && !isKidsBookFullscreen && (
+        {showArrow && (
           <IconButton onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             sx={{
               position: "fixed",

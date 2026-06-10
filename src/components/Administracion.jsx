@@ -28,7 +28,7 @@ const Administracion = () => {
   const [showCursor, setShowCursor] = useState(true);
   const emailRef = useRef();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const textToType = useRef("Sign in");
+  const textToType = useRef("Iniciar sesión");
   const [logoAnimacion, setLogoAnimacion] = useState("idle"); // idle | pendulo | error
   const logoTimeoutRef = useRef(null);
   const [estadoMensaje, setEstadoMensaje] = useState("idle");
@@ -65,12 +65,12 @@ const Administracion = () => {
       sessionStorage.setItem("snackbar", JSON.stringify({
         open: true,
         type: "success",
-        message: `Welcome ${usuarioValido.nombre} 😎`
+        message: `Bienvenido ${usuarioValido.nombre} 😎`
       }));
       sessionStorage.setItem("usuario", JSON.stringify(usuarioValido));
 
       setTimeout(() => {
-        navigate("/dashboard", { replace: true });
+        navigate("/configurar-productos", { replace: true });
       }, 1000);
     } else {
       setLogoAnimacion("error");
@@ -80,7 +80,7 @@ const Administracion = () => {
         setIsSubmitting(false);
       }, 800);
 
-      showSnackbar("error", "Incorrect username or password");
+      showSnackbar("error", "Usuario o contraseña incorrectos");
     }
   };
 
@@ -326,7 +326,7 @@ const Administracion = () => {
           {estadoMensaje === "cargando" ? (
             <DotsAnimation />
           ) : estadoMensaje === "error" ? (
-            "Incorrect user"
+            "Usuario incorrecto"
           ) : (
             <>
               {typedText}
@@ -351,7 +351,7 @@ const Administracion = () => {
             inputRef={emailRef}
             fullWidth
             variant="filled"
-            label="Username or email"
+            label="Usuario o correo"
             margin="dense"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -370,7 +370,7 @@ const Administracion = () => {
             fullWidth
             type={showPassword ? "text" : "password"}
             variant="filled"
-            label="Password"
+            label="Contraseña"
             margin="dense"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -398,7 +398,7 @@ const Administracion = () => {
 
           <FormControlLabel
             control={<Checkbox checked={recordarme} onChange={(e) => setRecordarme(e.target.checked)} sx={{ color: "white" }} />}
-            label="Remember me" sx={{ color: "#bbb", mt: 0, fontSize: "0.8rem" }}
+            label="Recordarme" sx={{ color: "#bbb", mt: 0, fontSize: "0.8rem" }}
           />
           <motion.div
             initial={false}
@@ -431,7 +431,7 @@ const Administracion = () => {
               {isSubmitting ? (
                 <CircularProgress size={22} sx={{ color: "#fff" }} />
               ) : (
-                "Sign in"
+                "Ingresar"
               )}
             </Button>
 
@@ -449,7 +449,7 @@ const Administracion = () => {
               underline="hover"
               sx={{ color: "#bbb", fontSize: "0.9rem", "&:hover": { color: "#E95420" } }}
             >
-              Back to home
+              Volver al inicio
             </Link>
           </Box>
         </Box>
@@ -478,7 +478,7 @@ const DotsAnimation = () => {
     return () => clearInterval(interval);
   }, []);
 
-  return <span style={{ fontWeight: "bold" }}>Loading{dots}</span>;
+  return <span style={{ fontWeight: "bold" }}>Cargando{dots}</span>;
 };
 
 export default Administracion;

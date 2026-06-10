@@ -88,8 +88,8 @@ function Navbar({ contactoRef, informationsRef, videoReady }) {
   const pdfSrc = `/plataformasweb-pdf.pdf#zoom=${isMobile ? 100 : 60}`;
   const location = useLocation();
   const isHome = location.pathname === "/" || location.pathname === "";
-  const hasBanner = isHome || location.pathname === "/parents" || location.pathname === "/aboutUs";
-  const navActive = !hasBanner || isScrolled;
+  const hasBanner = isHome || location.pathname === "/parents" || location.pathname === "/nosotros";
+  const navActive = isScrolled;
   const mostrarAnimacion = videoReady || (location.pathname !== '/' && location.pathname !== '');
   const [animacionMostrada, setAnimacionMostrada] = useState(false);
   const [scrollY, setScrollY] = useState(0);
@@ -140,7 +140,7 @@ function Navbar({ contactoRef, informationsRef, videoReady }) {
       Inicio: () =>
         location.pathname !== "/" ? navigate("/") : scrollToTop(),
       "Catálogo": goToCatalogo,
-      Nosotros: () => navigate("/aboutUs"),
+      Nosotros: () => navigate("/nosotros"),
     };
 
     actions[item.name]?.();
@@ -235,7 +235,7 @@ function Navbar({ contactoRef, informationsRef, videoReady }) {
     <>
 
       {/* Banner rotativo */}
-      <Box
+      {!["/dashboard", "/administracion", "/configurar-productos", "/configurar-trabajos"].includes(location.pathname) && <Box
         sx={{
           position: "fixed",
           top: 0,
@@ -298,7 +298,7 @@ function Navbar({ contactoRef, informationsRef, videoReady }) {
             </Typography>
           </motion.div>
         </AnimatePresence>
-      </Box>
+      </Box>}
 
       <Box
         sx={{
@@ -311,7 +311,7 @@ function Navbar({ contactoRef, informationsRef, videoReady }) {
           borderRadius: "40px",
           overflow: "hidden",
           transition: 'margin-top 0.2s ease',
-          marginTop: "46px",
+          marginTop: ["/dashboard", "/administracion", "/configurar-productos", "/configurar-trabajos"].includes(location.pathname) ? "8px" : "46px",
         }}
       >
         <AppBar
@@ -783,7 +783,7 @@ function Navbar({ contactoRef, informationsRef, videoReady }) {
                         lineHeight: 1.5,
                       }}
                     >
-                      🏪 Entrega presencial
+                      🚚 Solo Delivery
                     </Typography>
                   </Box>
 

@@ -31,7 +31,7 @@ const pasos = [
     color: "#FF6A00",
     glow: "rgba(255,106,0,0.25)",
     title: "Preparamos y despachamos",
-    description: "Preparamos tu pedido y lo enviamos a domicilio en Santiago o coordinamos el punto de entrega presencial.",
+    description: "Preparamos tu pedido y lo enviamos a domicilio en Santiago. Coordina tu delivery de forma simple y rápida.",
   },
   {
     step: 4,

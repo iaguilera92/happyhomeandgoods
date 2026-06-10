@@ -3,12 +3,12 @@ const XLSX = require("xlsx");
 require("dotenv").config();
 
 const BUCKET_NAME = process.env.BUCKET_NAME_PLATAFORMAS_WEB;
-const REGION = process.env.MY_AWS_REGION_PLATAFORMAS_WEB || "us-east-2";
+const REGION = process.env.MY_AWS_REGION || process.env.AWS_REGION_PLATAFORMAS_WEB || "us-east-2";
 const FILE_KEY = "PaseMensual.xlsx";
 
 AWS.config.update({
-    accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID_PLATAFORMAS_WEB,
-    secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY_PLATAFORMAS_WEB,
+    accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID_PLATAFORMAS_WEB,
+    secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY_PLATAFORMAS_WEB,
     region: REGION,
 });
 

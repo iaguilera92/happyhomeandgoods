@@ -3,12 +3,15 @@ import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import BarChartIcon from "@mui/icons-material/BarChart";
 import ViewCarouselIcon from "@mui/icons-material/ViewCarousel";
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { useLocation, useNavigate } from 'react-router-dom';
+
+const opciones = [
+    { ruta: "/dashboard",           icono: BarChartIcon,      texto: "Visitas"   },
+    { ruta: "/configurar-productos", icono: ViewCarouselIcon,  texto: "Catálogo"  },
+];
 
 const MenuInferior = ({ cardSize }) => {
     const location = useLocation();
-    const pathname = location.pathname;
     const navigate = useNavigate();
 
     const goWithCleanCache = async (rutaDestino) => {
@@ -17,127 +20,108 @@ const MenuInferior = ({ cardSize }) => {
             await Promise.all(cacheNames.map(name => caches.delete(name)));
             if ("serviceWorker" in navigator) {
                 const registrations = await navigator.serviceWorker.getRegistrations();
-                for (const registration of registrations) {
-                    await registration.unregister();
-                }
+                for (const registration of registrations) await registration.unregister();
             }
-            navigate(rutaDestino); // 👈 navegación SPA, no reload completo
-        } catch (err) {
-            console.warn("⚠️ Error al limpiar cache:", err);
+            navigate(rutaDestino);
+        } catch {
             navigate(rutaDestino);
         }
     };
 
-    const opciones = {
-        "/configurar-trabajos": {
-            icono: <AttachMoneyIcon sx={{ fontSize: 45, color: "success.main" }} />,
-            texto: "Trabajos",
-        },
-        "/dashboard": {
-            icono: <BarChartIcon sx={{ fontSize: 45, color: "success.main" }} />,
-            texto: "Visitas",
-        },
-        "/configurar-productos": {
-            icono: <ViewCarouselIcon sx={{ fontSize: 45, color: "success.main" }} />,
-            texto: "Catálogo",
-        },
-    };
-
-    const orden = ["/configurar-trabajos", "/dashboard", "/configurar-productos"];
-    const rutaCentral = orden.find(r => pathname.startsWith(r)) || "/dashboard";
-    const rutasLaterales = orden.filter(r => r !== rutaCentral);
-
-    const renderBoton = (ruta, esCentral) => {
-        const { icono, texto } = opciones[ruta];
-        const baseStyles = {
-            flex: esCentral ? 1.3 : 1,
-            height: esCentral ? 108 : 65,
-            backgroundColor: "#ffffff",
-            border: "2px solid black",
-            borderRadius: esCentral ? "16px" : "12px 12px 0 0",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: esCentral ? 2 : 1,
-            cursor: "pointer",
-            transition: "all 0.2s ease-in-out",
-            boxShadow: esCentral
-                ? "0 4px 10px rgba(0,0,0,0.15)"
-                : "inset 0px 0px 4px rgba(0,0,0,0.08)",
-            marginBottom: esCentral ? "-10px" : 0,
-            "&:hover": {
-                transform: "scale(1.05)",
-                backgroundColor: "#f7f7f7",
-                boxShadow: "0 6px 14px rgba(0,0,0,0.2)",
-            },
-        };
-
-        return (
-            <Box key={ruta} onClick={() => goWithCleanCache(ruta)} sx={baseStyles}>
-                {esCentral ? (
-                    <motion.div
-                        initial={{ scale: 1 }}
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ delay: 1.4, duration: 1, ease: "easeInOut" }}
-                        style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-                    >
-                        {icono}
-                        <Typography variant="caption" fontWeight="bold" fontSize={15} color="success.main">
-                            {texto}
-                        </Typography>
-                    </motion.div>
-                ) : (
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            textAlign: "center",
-                        }}
-                    >
-                        {React.cloneElement(icono, { sx: { fontSize: 26, color: "primary.main" } })}
-                        <Typography variant="caption" fontSize={11}>
-                            {texto}
-                        </Typography>
-                    </Box>
-                )}
-            </Box>
-        );
-    };
-
     return (
         <motion.div
-            initial={{ y: 100, opacity: 0 }}
+            initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 1, ease: "easeOut" }}
+            transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
             style={{
                 position: "fixed",
-                bottom: 0,
+                bottom: 6,
                 left: 0,
                 width: "100%",
                 display: "flex",
                 justifyContent: "center",
-                zIndex: 10,
+                zIndex: 100,
                 pointerEvents: "none",
             }}
         >
             <Box
                 sx={{
-                    width: cardSize,
                     display: "flex",
-                    justifyContent: "center",
-                    alignItems: "flex-end",
-                    pt: 1,
-                    gap: 0,
-                    position: "relative",
+                    alignItems: "center",
+                    gap: 1,
+                    px: 2,
+                    py: 1.2,
+                    borderRadius: "60px",
+                    background: "rgba(10, 10, 10, 0.72)",
+                    backdropFilter: "blur(20px)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.35)",
                     pointerEvents: "auto",
                 }}
             >
-                {renderBoton(rutasLaterales[0], false)}
-                {renderBoton(rutaCentral, true)}
-                {renderBoton(rutasLaterales[1], false)}
+                {opciones.map(({ ruta, icono: Icono, texto }) => {
+                    const activo = location.pathname.startsWith(ruta);
+                    return (
+                        <motion.div
+                            key={ruta}
+                            whileTap={{ scale: 0.93 }}
+                            onClick={() => goWithCleanCache(ruta)}
+                            style={{ cursor: "pointer" }}
+                        >
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    px: 2.5,
+                                    py: 0.8,
+                                    borderRadius: "40px",
+                                    background: activo ? "rgba(255,255,255,0.12)" : "transparent",
+                                    transition: "background 0.25s ease",
+                                    "&:hover": {
+                                        background: activo ? "rgba(255,255,255,0.16)" : "rgba(255,255,255,0.06)",
+                                    },
+                                    minWidth: 80,
+                                }}
+                            >
+                                <Icono
+                                    sx={{
+                                        fontSize: 24,
+                                        color: activo ? "#ffffff" : "rgba(255,255,255,0.45)",
+                                        transition: "color 0.25s ease",
+                                        mb: 0.3,
+                                    }}
+                                />
+                                <Typography
+                                    sx={{
+                                        fontSize: "0.68rem",
+                                        fontWeight: activo ? 700 : 400,
+                                        color: activo ? "#ffffff" : "rgba(255,255,255,0.45)",
+                                        fontFamily: "'Poppins', sans-serif",
+                                        letterSpacing: "0.02em",
+                                        transition: "all 0.25s ease",
+                                    }}
+                                >
+                                    {texto}
+                                </Typography>
+                                {activo && (
+                                    <motion.div
+                                        layoutId="pill-indicator"
+                                        style={{
+                                            position: "absolute",
+                                            bottom: -2,
+                                            width: 4,
+                                            height: 4,
+                                            borderRadius: "50%",
+                                            background: "#ffffff",
+                                        }}
+                                    />
+                                )}
+                            </Box>
+                        </motion.div>
+                    );
+                })}
             </Box>
         </motion.div>
     );

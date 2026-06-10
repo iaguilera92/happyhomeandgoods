@@ -3,24 +3,35 @@ import * as XLSX from "xlsx";
 // Función para transformar cada fila en un producto válido
 function transformarProductos(data) {
   return data.map((row) => ({
-    IdProducto: Number(row["IdProducto"]),
-    NombreProducto: row["NombreProducto"],
-    Descripcion: row["Descripcion"] || "",
-    Valor: Number(row["Valor"]) || 0,
-    Stock: Number(row["Stock"]) || 0,
-    ImageUrl: row["ImageUrl"] || "",
-    ConDescuento: String(row["ConDescuento"]).toLowerCase() === "true",
-    VideoUrl: row["VideoUrl"] || "",
-    Orden: Number(row["Orden"]) || 9999,
+    IdProducto:     Number(row["IdProducto"]),
+    NombreProducto: row["NombreProducto"] || "",
+    Descripcion:    row["Descripcion"]    || "",
+    Categoria:      row["Categoria"]      || "",
+    Valor:          Number(row["Valor"])  || 0,
+    ValorOriginal:  Number(row["ValorOriginal"]) || 0,
+    Stock:          Number(row["Stock"])  || 0,
+    Activo:         String(row["Activo"]).toLowerCase() !== "false",
+    Destacado:      String(row["Destacado"]).toLowerCase() === "true",
+    ConDescuento:   String(row["ConDescuento"]).toLowerCase() === "true",
+    Orden:          Number(row["Orden"])  || 9999,
+    ImageUrl:       row["ImageUrl"]       || "",
+    VideoUrl:       row["VideoUrl"]       || "",
   }));
 }
 
-// Función principal exportada
-export const cargarProductos = async (urlExcel) => {
+// URL base de las funciones Netlify
+const functionsBase =
+  window.location.hostname === "localhost"
+    ? "http://localhost:8888"
+    : "";
+
+// Función principal exportada — siempre va a través de la función Netlify (sin CORS)
+export const cargarProductos = async () => {
   try {
-    const response = await fetch(urlExcel, {
-      cache: 'no-store', // 🔥 CLAVE
-    });
+    const response = await fetch(
+      `${functionsBase}/.netlify/functions/obtenerProductos`,
+      { cache: "no-store" }
+    );
 
     if (!response.ok) {
       throw new Error("No se pudo obtener el archivo Excel");
@@ -35,7 +46,7 @@ export const cargarProductos = async (urlExcel) => {
 
     return transformarProductos(jsonData);
   } catch (error) {
-    console.error("❌ Error al cargar productos desde el Excel:", error);
+    console.error("❌ Error al cargar productos:", error);
     return [];
   }
 };

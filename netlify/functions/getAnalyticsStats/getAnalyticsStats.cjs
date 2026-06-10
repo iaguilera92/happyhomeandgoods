@@ -15,8 +15,23 @@ exports.handler = async function (event, context) {
     };
   }
 
+  // En local sin credenciales devolvemos datos vacíos para no crashear la CLI
+  const isLocal = process.env.NETLIFY_DEV === "true" || process.env.NODE_ENV === "development";
+  const hasCredentials = !!process.env.GOOGLE_CREDENTIALS_JSON;
+
+  if (!hasCredentials && isLocal) {
+    return {
+      statusCode: 200,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({
+        Venezuela: 0, internacional: 0, total: 0,
+        dispositivos: { mobile: 0, desktop: 0, tablet: 0, total: 0 },
+      }),
+    };
+  }
+
   try {
-    const client = process.env.GOOGLE_CREDENTIALS_JSON
+    const client = hasCredentials
       ? new BetaAnalyticsDataClient({
         credentials: (() => {
           const raw = JSON.parse(process.env.GOOGLE_CREDENTIALS_JSON);
