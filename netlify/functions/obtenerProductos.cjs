@@ -1,14 +1,14 @@
 const AWS = require("aws-sdk");
 require("dotenv").config();
 
-const BUCKET_NAME = process.env.BUCKET_NAME;
-const REGION = process.env.MY_AWS_REGION || process.env.AWS_REGION || "us-east-2";
+const BUCKET_NAME = process.env.MY_BUCKET_NAME;
+const REGION = process.env.MY_AWS_REGION || "us-east-2";
 const FILE_KEY = "Productos.xlsx";
 
 const s3 = new AWS.S3({
     region: REGION,
-    accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY,
 });
 
 const headers = {

@@ -1,11 +1,11 @@
 const AWS = require('aws-sdk');
 
 const s3 = new AWS.S3({
-    region: process.env.AWS_REGION || 'us-east-2',
+    region: process.env.MY_AWS_REGION || 'us-east-2',
     accessKeyId:
-        process.env.MY_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID,
+        process.env.MY_AWS_ACCESS_KEY_ID,
     secretAccessKey:
-        process.env.MY_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY,
+        process.env.MY_AWS_SECRET_ACCESS_KEY,
 });
 
 const headers = {
@@ -54,14 +54,14 @@ exports.handler = async (event) => {
 
         await s3
             .putObject({
-                Bucket: process.env.BUCKET_NAME,
+                Bucket: process.env.MY_BUCKET_NAME,
                 Key: key,
                 Body: buffer,
                 ContentType: contentType,
             })
             .promise();
 
-        const url = `https://${process.env.BUCKET_NAME}.s3.${process.env.AWS_REGION || 'us-east-2'}.amazonaws.com/${key}`;
+        const url = `https://${process.env.MY_BUCKET_NAME}.s3.${process.env.MY_AWS_REGION || 'us-east-2'}.amazonaws.com/${key}`;
 
         return {
             statusCode: 200,

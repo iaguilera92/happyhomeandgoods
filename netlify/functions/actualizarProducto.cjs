@@ -2,14 +2,14 @@ const AWS = require("aws-sdk");
 const XLSX = require("xlsx");
 require("dotenv").config();
 
-const BUCKET_NAME = process.env.BUCKET_NAME;
-const REGION = process.env.MY_AWS_REGION || process.env.AWS_REGION || "us-east-1";
+const BUCKET_NAME = process.env.MY_BUCKET_NAME;
+const REGION = process.env.MY_AWS_REGION || "us-east-2";
 const FILE_KEY = "Productos.xlsx";
 
-if (process.env.MY_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID && process.env.MY_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY) {
+if (process.env.MY_AWS_ACCESS_KEY_ID && process.env.MY_AWS_SECRET_ACCESS_KEY) {
     AWS.config.update({
-        accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY || process.env.AWS_SECRET_ACCESS_KEY,
+        accessKeyId: process.env.MY_AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.MY_AWS_SECRET_ACCESS_KEY,
         region: REGION,
     });
 } else {
