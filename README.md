@@ -70,10 +70,5 @@ AUTORIZAR NETLIFY: netlify deploy --prod
 API NETLIFY: npx netlify functions:serve getAnalyticsStats
 
 
-CORREO:
-email: golfincolors.contact@gmail.com
-
-pass: ladesiempre
-
 
 
