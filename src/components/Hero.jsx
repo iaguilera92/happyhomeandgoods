@@ -80,14 +80,15 @@ function Hero({ onStartClick }) {
       {isMobile && (
         <Box
           component="img"
-          src="/fondo-mobile.png"
+          src="/fondo-mobile.avif"
           sx={{
             position: "absolute",
-            inset: 0,
+            top: 0,
+            left: 0,
             width: "100%",
-            height: "100%",
+            height: "120%",
             objectFit: "cover",
-            objectPosition: "center 70%",
+            objectPosition: "center bottom",
           }}
         />
       )}
