@@ -60,7 +60,7 @@ const Footer = () => {
             <Box sx={{ display: "flex", gap: 1.2 }}>
               {[
                 { href: "https://www.instagram.com/happyhomeandgoods?utm_source=qr&igsh=MXhpNzc1Mndhc2FrYQ==", icon: <InstagramIcon sx={{ fontSize: 18 }} />, bg: "linear-gradient(45deg, #cf198c, #f41242)" },
-                { href: "#", icon: <FacebookIcon sx={{ fontSize: 18 }} />, bg: "#1877F2" },
+                { href: "https://www.facebook.com/profile.php?id=61590585666188&name=xhp_nt__fb__action__open_user", icon: <FacebookIcon sx={{ fontSize: 18 }} />, bg: "#1877F2" },
                 { href: "https://wa.me/56957581093", icon: <WhatsAppIcon sx={{ fontSize: 18 }} />, bg: "#25D366" },
               ].map((s, i) => (
                 <Box
@@ -108,7 +108,7 @@ const Footer = () => {
                   icon: <EmailRoundedIcon sx={{ fontSize: 18, color: "#1B83CC" }} />,
                   label: "EMAIL",
                   value: "happyhomeandgoods@gmail.com",
-                  href: "mailto:happyhomeandgoods@gmail.com",
+                  href: "https://mail.google.com/mail/?view=cm&to=happyhomeandgoods@gmail.com",
                 },
                 {
                   icon: <LocationOnRoundedIcon sx={{ fontSize: 18, color: "#c0392b" }} />,
