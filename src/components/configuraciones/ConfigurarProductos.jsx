@@ -12,6 +12,9 @@ import AddIcon from '@mui/icons-material/Add';
 import UpdateIcon from '@mui/icons-material/Update';
 import RestoreIcon from '@mui/icons-material/Restore';
 import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
+import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
+import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
+import StarRoundedIcon from '@mui/icons-material/StarRounded';
 import { cargarProductos } from '../../helpers/HelperProductos';
 import { DialogEliminarProducto, DialogRestaurarProductos } from './DialogosProductos';
 import MenuInferior from '../configuraciones/MenuInferior';
@@ -142,6 +145,8 @@ const ConfigurarProductos = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const cardSize = isMobile ? "300px" : "340px";
+  const [pagina, setPagina] = useState(0);
+  const POR_PAGINA = 9;
 
   useEffect(() => {
     recargarProductos();
@@ -149,7 +154,6 @@ const ConfigurarProductos = () => {
 
   const recargarProductos = async () => {
     const data = await cargarProductos();
-    console.log('🔄 [RELOAD] primer producto recibido:', data[0]);
     const ordenados = [...data].sort((a, b) => String(a.IdProducto).localeCompare(String(b.IdProducto)));
     setProductos(ordenados);
   };
@@ -209,16 +213,6 @@ const ConfigurarProductos = () => {
       return;
     }
 
-    // Solo un producto puede ser destacado a la vez
-    if (nuevoProducto.Destacado) {
-      const otroDestacado = productos.find(
-        (p) => p.Destacado && Number(p.IdProducto) !== Number(nuevoProducto.IdProducto)
-      );
-      if (otroDestacado) {
-        setSnackbar({ open: true, message: `Ya existe un producto destacado: "${otroDestacado.NombreProducto}". Quitale el destacado primero.` });
-        return;
-      }
-    }
 
     const MAX = 1_000_000;
     const camposNumericos = [
@@ -243,7 +237,6 @@ const ConfigurarProductos = () => {
       ImagenZoom: imagenZoom,
       ImagenPosicion: `${imagenPosX}% ${imagenPosY}%`,
     };
-    console.log('📦 [GUARDAR] payload enviado:', payload);
 
     try {
       const res = await fetch(url, {
@@ -419,9 +412,16 @@ const ConfigurarProductos = () => {
         </Box>
 
         {/* GRID DE PRODUCTOS */}
+        {(() => {
+          const productosVisibles = isMobile
+            ? productos.slice(pagina * POR_PAGINA, (pagina + 1) * POR_PAGINA)
+            : productos;
+          const totalPaginas = Math.ceil(productos.length / POR_PAGINA);
+          return (
+        <>
         <Grid container spacing={1.5}>
           <AnimatePresence>
-            {productos.map((producto, idx) => (
+            {productosVisibles.map((producto, idx) => (
               <Grid item xs={4} sm={3} md={1.5} lg={1.5} key={producto.IdProducto || idx}>
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
@@ -438,7 +438,9 @@ const ConfigurarProductos = () => {
                       overflow: 'hidden',
                       cursor: 'pointer',
                       backgroundColor: '#fff',
-                      boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
+                      boxShadow: producto.Destacado
+                        ? '0 0 0 2px #ffe84d, 0 0 12px 3px rgba(255,220,30,0.7), 0 0 28px 6px rgba(255,200,0,0.35)'
+                        : '0 4px 16px rgba(0,0,0,0.35)',
                       '&:hover .card-actions': { opacity: 1 },
                       '&:hover .card-img': { transform: 'scale(1.06)' },
                     }}
@@ -473,25 +475,31 @@ const ConfigurarProductos = () => {
                       }}
                     />
 
-                    {/* BADGE DESCUENTO */}
-                    {producto.ConDescuento && (
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: 8,
-                          left: 8,
-                          backgroundColor: '#E95420',
-                          color: 'white',
-                          fontSize: '0.6rem',
-                          fontWeight: 700,
-                          fontFamily: "'Poppins', sans-serif",
-                          px: 0.8,
-                          py: 0.3,
-                          borderRadius: 1,
-                          letterSpacing: '0.04em',
-                        }}
-                      >
-                        OFERTA
+                    {/* BADGES — fila superior izquierda */}
+                    {(producto.Destacado || producto.ConDescuento) && (
+                      <Box sx={{ position: 'absolute', top: 4, left: 4, display: 'flex', alignItems: 'center', gap: 0.4 }}>
+                        {producto.Destacado && (
+                          <Box sx={{
+                            background: 'linear-gradient(135deg, #ffe000, #ffb800)',
+                            color: '#3a2000', display: 'flex', alignItems: 'center',
+                            px: 0.4, py: 0.15, borderRadius: 0.8,
+                            boxShadow: '0 0 6px 2px rgba(255,220,0,0.8), 0 0 14px 4px rgba(255,180,0,0.45)',
+                          }}>
+                            <StarRoundedIcon sx={{ fontSize: 11 }} />
+                          </Box>
+                        )}
+                        {producto.ConDescuento && (
+                          <Box sx={{
+                            backgroundColor: 'rgba(180,60,20,0.72)',
+                            color: 'rgba(255,255,255,0.9)',
+                            fontSize: '0.42rem', fontWeight: 600,
+                            fontFamily: "'Poppins', sans-serif",
+                            px: 0.5, py: 0.2, borderRadius: 0.8,
+                            letterSpacing: '0.04em',
+                          }}>
+                            OFERTA
+                          </Box>
+                        )}
                       </Box>
                     )}
 
@@ -543,8 +551,8 @@ const ConfigurarProductos = () => {
                       className="card-actions"
                       sx={{
                         position: 'absolute',
-                        top: 8,
-                        right: 8,
+                        top: 4,
+                        right: 4,
                         display: 'flex',
                         flexDirection: 'column',
                         gap: 0.6,
@@ -556,11 +564,11 @@ const ConfigurarProductos = () => {
                         size="small"
                         onClick={() => handleEditar(idx)}
                         sx={{
-                          backgroundColor: 'white',
-                          color: '#222',
+                          backgroundColor: '#1565c0',
+                          color: '#fff',
                           width: 28,
                           height: 28,
-                          '&:hover': { backgroundColor: '#f0f0f0' },
+                          '&:hover': { backgroundColor: '#0d47a1' },
                         }}
                       >
                         <EditIcon sx={{ fontSize: 14 }} />
@@ -629,6 +637,30 @@ const ConfigurarProductos = () => {
           </AnimatePresence>
         </Grid>
 
+        {/* PAGINACIÓN MOBILE */}
+        {isMobile && totalPaginas > 1 && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, mt: 2 }}>
+            <IconButton size="small" disabled={pagina === 0} onClick={() => setPagina(p => p - 1)}
+              sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: '#fff', '&:disabled': { opacity: 0.3 }, '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}>
+              <ArrowBackIosNewRoundedIcon sx={{ fontSize: 14 }} />
+            </IconButton>
+            {Array.from({ length: totalPaginas }, (_, i) => (
+              <Box key={i} onClick={() => setPagina(i)} sx={{
+                width: pagina === i ? 20 : 8, height: 8, borderRadius: 4,
+                bgcolor: pagina === i ? '#fff' : 'rgba(255,255,255,0.35)',
+                cursor: 'pointer', transition: 'all 0.25s ease',
+              }} />
+            ))}
+            <IconButton size="small" disabled={pagina === totalPaginas - 1} onClick={() => setPagina(p => p + 1)}
+              sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: '#fff', '&:disabled': { opacity: 0.3 }, '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}>
+              <ArrowForwardIosRoundedIcon sx={{ fontSize: 14 }} />
+            </IconButton>
+          </Box>
+        )}
+        </>
+          );
+        })()}
+
         {/* DIALOG EDITAR / NUEVO */}
         <Dialog
           fullScreen={isMobile}
@@ -695,6 +727,7 @@ const ConfigurarProductos = () => {
                     <MenuItem value="Limpieza">Limpieza</MenuItem>
                     <MenuItem value="Accesorios">Accesorios</MenuItem>
                     <MenuItem value="Seguridad">Seguridad</MenuItem>
+                    <MenuItem value="Mascotas">Mascotas</MenuItem>
                   </Select>
                 </FormControl>
 
@@ -744,7 +777,8 @@ const ConfigurarProductos = () => {
                 </Box>
 
                 <TextField
-                  fullWidth size="small" multiline minRows={2} label="Descripción"
+                  fullWidth size="small" multiline minRows={4} maxRows={10} label="Descripción"
+                  inputProps={{ maxLength: 1200 }}
                   name="Descripcion" value={nuevoProducto.Descripcion} onChange={handleInputChange}
                   sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, backgroundColor: '#fff' } }}
                 />

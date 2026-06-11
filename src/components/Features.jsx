@@ -8,7 +8,7 @@ import RiceBowlRoundedIcon from "@mui/icons-material/RiceBowlRounded";
 import CleaningServicesRoundedIcon from "@mui/icons-material/CleaningServicesRounded";
 import SecurityRoundedIcon from "@mui/icons-material/SecurityRounded";
 import CategoryRoundedIcon from "@mui/icons-material/CategoryRounded";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
@@ -26,6 +26,7 @@ const CATEGORIAS_CONFIG = {
   "Limpieza":    { color: "#017458", icon: <CleaningServicesRoundedIcon />,    grad: "linear-gradient(135deg, #015a43 0%, #017458 100%)", img: "/limpieza.png"  },
   "Accesorios":  { color: "#c0392b", icon: <AutoAwesomeRoundedIcon />,         grad: "linear-gradient(135deg, #c0392b 0%, #e74c3c 100%)", img: "/accesorios.png"},
   "Seguridad":   { color: "#1B83CC", icon: <SecurityRoundedIcon />,            grad: "linear-gradient(135deg, #0d6eaf 0%, #1B83CC 100%)", img: "/seguridad.png" },
+  "Mascotas":    { color: "#7B5EA7", icon: <PetsRoundedIcon />,                grad: "linear-gradient(135deg, #5c3d8a 0%, #7B5EA7 100%)", img: "/mascotas.png"  },
 };
 
 function ProductCard({ producto, onVerDetalle }) {
@@ -401,11 +402,13 @@ function Features() {
   const [cargando, setCargando] = useState(true);
   const [categoriaAbierta, setCategoriaAbierta] = useState(null);
   const [productoAbierto, setProductoAbierto] = useState(null);
+  const [indexDestacado, setIndexDestacado] = useState(0);
 
   const swiperCocina     = useRef(null);
   const swiperLimpieza   = useRef(null);
   const swiperAccesorios = useRef(null);
   const swiperSeguridad  = useRef(null);
+  const swiperMascotas   = useRef(null);
 
   useEffect(() => {
     cargarProductos().then((data) => {
@@ -415,7 +418,15 @@ function Features() {
   }, []);
 
   const productosActivos = productos.filter((p) => p.Activo);
-  const productoDestacado = productosActivos.find((p) => p.Destacado) || null;
+  const productosDestacados = productosActivos.filter((p) => p.Destacado);
+
+  useEffect(() => {
+    if (productosDestacados.length <= 1) return;
+    const id = setInterval(() => setIndexDestacado((i) => (i + 1) % productosDestacados.length), 4000);
+    return () => clearInterval(id);
+  }, [productosDestacados.length]);
+
+  const productoDestacado = productosDestacados[indexDestacado % Math.max(productosDestacados.length, 1)] ?? null;
 
   // Ocultar sección completa si no hay productos
   if (!cargando && productosActivos.length === 0) return null;
@@ -437,7 +448,14 @@ function Features() {
                 &nbsp;✦&nbsp; Categorías &nbsp;✦&nbsp;
               </Typography>
             </Box>
-            <Box sx={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: { xs: 1, sm: 1.5 } }}>
+            <Box sx={{
+              display: { xs: "flex", sm: "grid" },
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gridTemplateColumns: { sm: "repeat(5, 1fr)" },
+              gap: { xs: 1, sm: 1.5 },
+              "& > *": { width: { xs: "calc(33.33% - 6px)", sm: "unset" } },
+            }}>
               {Object.entries(CATEGORIAS_CONFIG).map(([label, cfg], i) => (
                 <motion.div key={label} initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.35, delay: i * 0.07 }}>
                   <Box
@@ -472,36 +490,71 @@ function Features() {
         {/* ── Banner destacado ── */}
         {productoDestacado && (
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.55, ease: "easeOut" }}>
-            <Box sx={{ width: "100vw", ml: "calc(50% - 50vw)", mr: "calc(50% - 50vw)", mt: { xs: 2, sm: 2.5 }, mb: 0, overflow: "hidden", background: "linear-gradient(135deg, #5c1f00 0%, #a03800 40%, #d45c00 70%, #ff8c00 100%)" }}>
-              <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: { xs: 160, sm: 200 } }}>
+            <Box sx={{ width: "100vw", ml: "calc(50% - 50vw)", mr: "calc(50% - 50vw)", mt: { xs: 2, sm: 2.5 }, mb: 0, overflow: "hidden", position: "relative", background: "linear-gradient(135deg, #5c1f00 0%, #a03800 40%, #d45c00 70%, #ff8c00 100%)" }}>
 
-                {/* IZQUIERDA — botón centrado */}
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: { xs: "center", sm: "flex-end" }, pr: { xs: 1, sm: 8 }, pl: { xs: 1, sm: 2 } }}>
+              <Box sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr 1fr", sm: "1fr 1fr 1fr 1fr" },
+                alignItems: "center",
+                minHeight: { xs: 160, sm: 200 },
+              }}>
+
+                {/* Col 1 — vacío (solo sm+) */}
+                <Box sx={{ display: { xs: "none", sm: "block" } }} />
+
+                {/* Botón centrado */}
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <Box component="a"
-                    href={`https://wa.me/${WSP}?text=${encodeURIComponent(`Hola! Me interesa el ${productoDestacado.NombreProducto}, ¿sigue disponible?`)}`}
+                    href={`https://wa.me/${WSP}?text=${encodeURIComponent(`Hola! Me interesa el ${productoDestacado.NombreProducto} por ${productoDestacado.Pack > 0 ? `${productoDestacado.Pack} x ${formatPrecio(productoDestacado.Valor)}` : formatPrecio(productoDestacado.Valor)}, ¿sigue disponible?`)}`}
                     target="_blank" rel="noopener noreferrer"
                     sx={{ textDecoration: "none", color: "#fff", fontFamily: "'Poppins', sans-serif", fontWeight: 900, fontSize: { xs: "0.72rem", sm: "1rem" }, letterSpacing: "0.04em", px: { xs: 1.8, sm: 3 }, py: { xs: 0.8, sm: 1.1 }, border: "2px solid rgba(255,255,255,0.95)", whiteSpace: "nowrap", transition: "background 0.18s ease", "&:hover": { background: "rgba(255,255,255,0.15)" } }}>
                     Comprar ahora
                   </Box>
                 </Box>
 
-                {/* DERECHA — imagen + precio centrado debajo */}
-                <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: { xs: "center", sm: "flex-start" }, pl: { xs: 1, sm: 8 } }}>
-                  <Box sx={{ position: "relative", display: "inline-block" }}>
-                    <Box component="img"
-                      src={productoDestacado.ImageUrl}
-                      alt={productoDestacado.NombreProducto}
-                      sx={{ height: { xs: 145, sm: 190 }, objectFit: "contain", objectPosition: "center bottom", display: "block" }}
-                    />
-                  </Box>
+                {/* Imagen animada */}
+                <Box sx={{ display: "flex", alignItems: { xs: "center", sm: "flex-end" }, justifyContent: "center", height: "100%" }}>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={productoDestacado.IdProducto}
+                      initial={{ opacity: 0, scale: 0.88, y: 18 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 1.06, y: -14 }}
+                      transition={{ duration: 0.55, ease: "easeInOut" }}
+                      style={{ display: "block" }}
+                    >
+                      <Box component="img"
+                        src={productoDestacado.ImageUrl}
+                        alt={productoDestacado.NombreProducto}
+                        sx={{ maxHeight: { xs: 148, sm: 192 }, maxWidth: "100%", objectFit: "contain", objectPosition: "center bottom", display: "block" }}
+                      />
+                    </motion.div>
+                  </AnimatePresence>
                 </Box>
+
+                {/* Col 4 — vacío (solo sm+) */}
+                <Box sx={{ display: { xs: "none", sm: "block" } }} />
 
               </Box>
             </Box>
+
+            {/* Dots fuera del banner */}
+            {productosDestacados.length > 1 && (
+              <Box sx={{ display: "flex", justifyContent: "center", gap: 0.8, pt: 1 }}>
+                {productosDestacados.map((_, i) => (
+                  <Box key={i} onClick={() => setIndexDestacado(i)} sx={{
+                    width: i === indexDestacado ? 18 : 7, height: 7, borderRadius: 4,
+                    bgcolor: i === indexDestacado ? "#a03800" : "rgba(0,0,0,0.18)",
+                    cursor: "pointer", transition: "all 0.3s ease",
+                  }} />
+                ))}
+              </Box>
+            )}
           </motion.div>
         )}
 
         <CarruselCategoria label="Limpieza"  color="#017458" icon={<CleaningServicesRoundedIcon sx={{ fontSize: 18 }} />} productos={productosActivos} swiperRef={swiperLimpieza}  onVerDetalle={setProductoAbierto} />
+        <CarruselCategoria label="Seguridad" color="#1B83CC" icon={<SecurityRoundedIcon sx={{ fontSize: 18 }} />} productos={productosActivos} swiperRef={swiperSeguridad} onVerDetalle={setProductoAbierto} />
 
         {/* ── Banner video ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, ease: "easeOut" }}>
@@ -519,7 +572,7 @@ function Features() {
           </Box>
         </motion.div>
 
-        <CarruselCategoria label="Seguridad" color="#1B83CC" icon={<SecurityRoundedIcon sx={{ fontSize: 18 }} />} productos={productosActivos} swiperRef={swiperSeguridad} onVerDetalle={setProductoAbierto} />
+        <CarruselCategoria label="Mascotas"  color="#7B5EA7" icon={<PetsRoundedIcon sx={{ fontSize: 18 }} />}    productos={productosActivos} swiperRef={swiperMascotas}  onVerDetalle={setProductoAbierto} />
 
       </Container>
 

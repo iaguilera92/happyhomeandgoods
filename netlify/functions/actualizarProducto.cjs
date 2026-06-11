@@ -100,22 +100,6 @@ exports.handler = async (event) => {
                 ? producto.ImageUrl
                 : productoAnterior?.ImageUrl || "";
 
-        // 🔹 Validar que no haya otro producto destacado
-        if (producto.Destacado) {
-            const otroDestacado = datos.find(
-                (row) => String(row.Destacado).toLowerCase() === "true" &&
-                         Number(row.IdProducto) !== idFinal
-            );
-            if (otroDestacado) {
-                return {
-                    statusCode: 400,
-                    headers: corsHeaders,
-                    body: JSON.stringify({
-                        message: `Ya existe un producto destacado: "${otroDestacado.NombreProducto}". Quitale el destacado primero.`,
-                    }),
-                };
-            }
-        }
 
         // 🔹 Si es edición, eliminar registro anterior
         if (!esNuevo) {

@@ -775,16 +775,6 @@ function Navbar({ contactoRef, informationsRef, videoReady }) {
                     >
                       🚚 Delivery en Santiago
                     </Typography>
-                    <Typography
-                      sx={{
-                        opacity: 0.8,
-                        fontSize: "0.82rem",
-                        fontFamily: 'Poppins, sans-serif',
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      🚚 Solo Delivery
-                    </Typography>
                   </Box>
 
                   <Button
@@ -798,14 +788,11 @@ function Navbar({ contactoRef, informationsRef, videoReady }) {
                         }}
                       />
                     }
-                    onClick={() => {
-                      if (informationsRef?.current) {
-                        const offset = -80;
-                        const y = informationsRef.current.getBoundingClientRect().top + window.scrollY + offset;
-                        window.scrollTo({ top: y, behavior: 'smooth' });
-                        setOpen(false);
-                      }
-                    }}
+                    component="a"
+                    href="https://wa.me/56957581093"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setOpen(false)}
                     sx={{
                       minHeight: 'unset',
                       color: "rgba(255,255,255,0.9)",
@@ -829,7 +816,7 @@ function Navbar({ contactoRef, informationsRef, videoReady }) {
                       },
                     }}
                   >
-                    Ver catálogo
+                    Contáctanos
                   </Button>
 
                 </Box>

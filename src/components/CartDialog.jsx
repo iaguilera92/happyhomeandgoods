@@ -314,10 +314,9 @@ export default function CartDialog({ open, onClose }) {
                   onChange={(e) => { setDireccion(e.target.value); if (e.target.value.trim()) setErrors(p => ({ ...p, direccion: false })); }}
                   variant="filled"
                   size="small"
-                  sx={{ ...activeFieldStyle, mt: 1.5 }}
                   InputProps={{ style: { color: "white", backgroundColor: errors.direccion ? "rgba(239,83,80,0.12)" : "rgba(255,255,255,0.18)" } }}
                   InputLabelProps={{ style: { color: errors.direccion ? "#ef5350" : "rgba(255,255,255,0.75)" } }}
-                  sx={errors.direccion ? errorFieldStyle : activeFieldStyle}
+                  sx={{ ...(errors.direccion ? errorFieldStyle : activeFieldStyle), mt: 1.5 }}
                 />
                 </motion.div>
 

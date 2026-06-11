@@ -319,7 +319,7 @@ function App() {
         {/* Botón Carrito */}
         <AnimatePresence>
         {!isRouteFallbackVisible && conteo > 0 && location.pathname !== "/administracion" && location.pathname !== "/dashboard" && location.pathname !== "/configurar-productos" && location.pathname !== "/configurar-trabajos" && (
-          <Box sx={{ position: "fixed", bottom: "20px", left: "20px", zIndex: 100 }}>
+          <Box sx={{ position: "fixed", bottom: "20px", left: "20px", zIndex: 1400 }}>
             {/* Anillo de pulsación */}
             <motion.div
               animate={{ scale: [1, 1.35, 1], opacity: [0.6, 0, 0.6] }}
