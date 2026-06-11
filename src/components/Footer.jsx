@@ -6,9 +6,9 @@ import LocationOnRoundedIcon from "@mui/icons-material/LocationOnRounded";
 import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
 import { useNavigate } from "react-router-dom";
 
-const TikTokIcon = (props) => (
+const FacebookIcon = (props) => (
   <SvgIcon {...props} viewBox="0 0 24 24">
-    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.24h-3.45v13.21a2.89 2.89 0 1 1-2.89-3 2.9 2.9 0 0 1 .72.09V9.23a6.34 6.34 0 0 0-.72-.04A6.34 6.34 0 1 0 15.82 15V8.36a8.2 8.2 0 0 0 4.77 1.53V6.69z" />
+    <path d="M22 12c0-5.522-4.478-10-10-10S2 6.478 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987H7.898V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
   </SvgIcon>
 );
 
@@ -60,8 +60,8 @@ const Footer = () => {
             <Box sx={{ display: "flex", gap: 1.2 }}>
               {[
                 { href: "https://www.instagram.com/happyhomeandgoods?utm_source=qr&igsh=MXhpNzc1Mndhc2FrYQ==", icon: <InstagramIcon sx={{ fontSize: 18 }} />, bg: "linear-gradient(45deg, #cf198c, #f41242)" },
-                { href: "#", icon: <TikTokIcon sx={{ fontSize: 18 }} />, bg: "linear-gradient(45deg, #111, #25F4EE)" },
-                { href: "https://wa.me/56948898681", icon: <WhatsAppIcon sx={{ fontSize: 18 }} />, bg: "#25D366" },
+                { href: "#", icon: <FacebookIcon sx={{ fontSize: 18 }} />, bg: "#1877F2" },
+                { href: "https://wa.me/56957581093", icon: <WhatsAppIcon sx={{ fontSize: 18 }} />, bg: "#25D366" },
               ].map((s, i) => (
                 <Box
                   key={i}
@@ -101,8 +101,8 @@ const Footer = () => {
                 {
                   icon: <WhatsAppIcon sx={{ fontSize: 18, color: "#25D366" }} />,
                   label: "WHATSAPP",
-                  value: "+56 9 4889 8681",
-                  href: "https://wa.me/56948898681",
+                  value: "+569 5758 1093",
+                  href: "https://wa.me/56957581093",
                 },
                 {
                   icon: <EmailRoundedIcon sx={{ fontSize: 18, color: "#1B83CC" }} />,

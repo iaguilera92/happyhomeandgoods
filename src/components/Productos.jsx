@@ -1,8 +1,10 @@
 ﻿import React, { useRef, useEffect, useState } from 'react';
 import { Box, Card, Typography, Button, Stack } from '@mui/material';
 import { motion } from 'framer-motion';
+import { useCart } from '../context/CartContext';
 
 const Productos = ({ producto, girado, onGirar, FormatearPesos, onVisualizarMobile }) => {
+  const { agregarAlCarrito } = useCart();
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const botonWhatsappRef = useRef(null);
@@ -348,6 +350,35 @@ const Productos = ({ producto, girado, onGirar, FormatearPesos, onVisualizarMobi
                     variant="contained"
                     disabled={producto.Stock === 0}
                     sx={{
+                      flex: 1,
+                      minWidth: 48,
+                      fontSize: { xs: '0.48rem', sm: '0.58rem' },
+                      borderRadius: '8px',
+                      py: { xs: 0.15, sm: 0.28 },
+                      bgcolor: '#1565c0',
+                      color: 'white',
+                      textTransform: 'none',
+                      boxShadow: producto.Stock === 0 ? 'none' : '0 0 10px rgba(21,101,192,0.5)',
+                      opacity: producto.Stock === 0 ? 0.4 : 1,
+                      cursor: producto.Stock === 0 ? 'not-allowed' : 'pointer',
+                      '&:hover': {
+                        bgcolor: producto.Stock === 0 ? '#1565c0' : '#0d47a1',
+                        transform: producto.Stock === 0 ? 'none' : 'scale(1.04)',
+                      },
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (producto.Stock === 0) return;
+                      agregarAlCarrito(producto);
+                    }}
+                  >
+                    + Carrito
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    disabled={producto.Stock === 0}
+                    sx={{
                       flex: 1.1,
                       minWidth: 56,
                       fontSize: { xs: '0.52rem', sm: '0.63rem' },
@@ -374,7 +405,7 @@ const Productos = ({ producto, girado, onGirar, FormatearPesos, onVisualizarMobi
                         return;
                       }
                       const mensaje = `Me interesó el ${producto.NombreProducto}, ¿sigue disponible?`;
-                      const telefono = '56948898681';
+                      const telefono = '56957581093';
                       const urlWhatsapp = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
                       window.open(urlWhatsapp, '_blank');
                     }}
@@ -434,21 +465,28 @@ const Productos = ({ producto, girado, onGirar, FormatearPesos, onVisualizarMobi
               <Button
                 ref={botonWhatsappRef}
                 variant="contained"
+                disabled={producto.Stock === 0}
                 sx={{
                   position: 'absolute',
                   bottom: 20,
                   left: '50%',
                   transform: 'translateX(-50%)',
-                  bgcolor: '#25D366',
+                  background: 'linear-gradient(135deg, #1e88e5, #1565c0)',
                   color: '#FFFFFF',
                   textTransform: 'none',
                   fontSize: '1rem',
+                  fontWeight: 700,
                   borderRadius: '20px',
                   px: 3,
                   py: 1,
                   zIndex: 9999,
                   display: 'none',
-                  boxShadow: '0px 4px 10px rgba(0,0,0,0.3)',
+                  boxShadow: '0px 4px 16px rgba(21,101,192,0.6)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #42a5f5, #1e88e5)',
+                    boxShadow: '0px 6px 20px rgba(21,101,192,0.8)',
+                    transform: 'translateX(-50%) scale(1.05)',
+                  },
                   '@media (max-width: 600px)': {
                     fontSize: '0.95rem',
                     px: 2,
@@ -457,18 +495,11 @@ const Productos = ({ producto, girado, onGirar, FormatearPesos, onVisualizarMobi
                 }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  const destino = producto.UrlCompra || producto.LinkAmazon || producto.LinkCompra;
-                  if (destino) {
-                    window.open(destino, '_blank');
-                    return;
-                  }
-                  const mensaje = `Me interesó el ${producto.NombreProducto}, ¿sigue disponible?`;
-                  const telefono = '56948898681';
-                  const urlWhatsapp = `https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`;
-                  window.open(urlWhatsapp, '_blank');
+                  if (producto.Stock === 0) return;
+                  agregarAlCarrito(producto);
                 }}
               >
-                Me interesa
+                🛒 Añadir al carrito
               </Button>
             </Card>
           </Box>

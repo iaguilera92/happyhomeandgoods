@@ -11,12 +11,12 @@ import CategoryRoundedIcon from "@mui/icons-material/CategoryRounded";
 import { motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
-import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
 import ArrowBackIosNewRoundedIcon from "@mui/icons-material/ArrowBackIosNewRounded";
 import { cargarProductos } from "../helpers/HelperProductos";
+import { useCart } from "../context/CartContext";
 
-const WSP = "56948898681";
+const WSP = "56957581093";
 
 const formatPrecio = (v) => `$${Number(v).toLocaleString("es-CL")}`;
 
@@ -29,13 +29,24 @@ const CATEGORIAS_CONFIG = {
 };
 
 function ProductCard({ producto }) {
-  const handleWsp = (e) => {
+  const { agregarAlCarrito } = useCart();
+  const [pressed, setPressed] = useState(false);
+
+  const handleAgregar = (e) => {
     e.stopPropagation();
-    const msg = `Hola! Me interesa el ${producto.NombreProducto}, ¿sigue disponible?`;
-    window.open(`https://wa.me/${WSP}?text=${encodeURIComponent(msg)}`, "_blank");
+    if (producto.Stock === 0) return;
+    setPressed(true);
+    setTimeout(() => setPressed(false), 350);
+    agregarAlCarrito(producto, e.currentTarget.closest("[data-card]")?.getBoundingClientRect() ?? e.currentTarget.getBoundingClientRect());
   };
 
   return (
+    <motion.div
+      animate={pressed ? { scale: [1, 0.93, 1.03, 1] } : { scale: 1 }}
+      transition={{ duration: 0.35, ease: "easeInOut" }}
+      data-card
+      style={{ borderRadius: 12, overflow: "hidden" }}
+    >
     <Box
       sx={{
         borderRadius: 3,
@@ -45,15 +56,21 @@ function ProductCard({ producto }) {
         position: "relative",
         height: { xs: 230, sm: 270 },
         cursor: "pointer",
-        transition: "transform 0.2s ease, box-shadow 0.2s ease",
-        "&:hover": { transform: "translateY(-3px)", boxShadow: "0 10px 28px rgba(0,0,0,0.15)" },
+        transition: "box-shadow 0.2s ease",
+        "&:hover": { boxShadow: "0 10px 28px rgba(0,0,0,0.15)" },
       }}
     >
       <Box
         component="img"
         src={producto.ImageUrl}
         alt={producto.NombreProducto}
-        sx={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        sx={{
+          width: "100%", height: "100%", display: "block",
+          objectFit: (producto.ImagenZoom || 1) < 1 ? "contain" : "cover",
+          objectPosition: producto.ImagenPosicion || "50% 50%",
+          transform: (producto.ImagenZoom || 1) > 1 ? `scale(${producto.ImagenZoom})` : "none",
+          transformOrigin: producto.ImagenPosicion || "50% 50%",
+        }}
       />
 
       <Box
@@ -81,11 +98,17 @@ function ProductCard({ producto }) {
 
           <Box
             component={motion.div}
-            whileTap={{ scale: 0.92 }}
-            onClick={handleWsp}
-            sx={{ bgcolor: "#25D366", borderRadius: "50%", width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 3px 10px rgba(37,211,102,0.45)", cursor: "pointer" }}
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.08 }}
+            onClick={handleAgregar}
+            sx={{
+              cursor: producto.Stock > 0 ? "pointer" : "not-allowed",
+              opacity: producto.Stock > 0 ? 1 : 0.4,
+              width: 34, height: 34,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
           >
-            <WhatsAppIcon sx={{ color: "#fff", fontSize: 20 }} />
+            <Box component="img" src="/carrito.png" alt="agregar al carrito" sx={{ width: 34, height: 34, objectFit: "contain" }} />
           </Box>
         </Box>
       </Box>
@@ -102,6 +125,7 @@ function ProductCard({ producto }) {
         </Box>
       )}
     </Box>
+    </motion.div>
   );
 }
 
@@ -303,7 +327,6 @@ function Features() {
         )}
 
         <CarruselCategoria label="Limpieza"  color="#017458" icon={<CleaningServicesRoundedIcon sx={{ fontSize: 18 }} />} productos={productosActivos} swiperRef={swiperLimpieza}  />
-        <CarruselCategoria label="Seguridad" color="#1B83CC" icon={<SecurityRoundedIcon sx={{ fontSize: 18 }} />}          productos={productosActivos} swiperRef={swiperSeguridad} />
 
         {/* ── Banner video ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, ease: "easeOut" }}>
@@ -320,6 +343,8 @@ function Features() {
             </Box>
           </Box>
         </motion.div>
+
+        <CarruselCategoria label="Seguridad" color="#1B83CC" icon={<SecurityRoundedIcon sx={{ fontSize: 18 }} />} productos={productosActivos} swiperRef={swiperSeguridad} />
 
       </Container>
 

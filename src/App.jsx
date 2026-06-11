@@ -3,13 +3,17 @@ import { CssBaseline, Box, IconButton, useMediaQuery, Snackbar, Alert } from "@m
 import theme from "./theme";
 import { ThemeProvider } from "@mui/material/styles";
 import "@fontsource/poppins";
-import { WhatsApp as WhatsAppIcon, ArrowUpward as ArrowUpwardIcon } from "@mui/icons-material";
+import { WhatsApp as WhatsAppIcon, ArrowUpward as ArrowUpwardIcon, ShoppingCart as ShoppingCartIcon } from "@mui/icons-material";
+import { Badge } from "@mui/material";
 import { useLocation, Outlet } from "react-router-dom";
 import Cargando from './components/Cargando';
 import { AnimatePresence, motion } from 'framer-motion';
 import "./components/css/App.css";
 import { initGoogleAnalytics, trackPageView } from "./helpers/HelperAnalytics.js"; //GOOGLE ANALYTICS
 import DialogInicio from "./components/DialogInicio";
+import CartDialog from "./components/CartDialog";
+import FlyToCart from "./components/FlyToCart";
+import { useCart } from "./context/CartContext";
 
 const Informations = lazy(() => import("./components/Informations"));
 const InformationsMobile = lazy(() => import("./components/InformationsMobile"));
@@ -23,6 +27,21 @@ function App() {
   const [showArrow, setShowArrow] = useState(false);
   const [openBubble, setOpenBubble] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartBounce, setCartBounce] = useState(0);
+  const { conteo, flyAnim } = useCart();
+
+  useEffect(() => {
+    if (!flyAnim) return;
+    const t = setTimeout(() => {
+      setCartBounce((k) => k + 1);
+    }, 650);
+    return () => clearTimeout(t);
+  }, [flyAnim]);
+
+  useEffect(() => {
+    if (conteo === 0) setCartBounce(0);
+  }, [conteo]);
   const contactoRef = useRef(null);
   const scrollToRef = (ref, offset = -80) =>
     ref?.current &&
@@ -297,10 +316,79 @@ function App() {
             <Footer />
           </div>
         )}
-        {/* BotÃƒÆ’Ã‚Â³n WhatsApp */}
+        {/* Botón Carrito */}
+        <AnimatePresence>
+        {!isRouteFallbackVisible && conteo > 0 && location.pathname !== "/administracion" && location.pathname !== "/dashboard" && location.pathname !== "/configurar-productos" && location.pathname !== "/configurar-trabajos" && (
+          <Box sx={{ position: "fixed", bottom: "20px", left: "20px", zIndex: 100 }}>
+            {/* Anillo de pulsación */}
+            <motion.div
+              animate={{ scale: [1, 1.35, 1], opacity: [0.6, 0, 0.6] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(99,179,237,0.5), rgba(21,101,192,0.2))",
+                pointerEvents: "none",
+              }}
+            />
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0, transition: { duration: 0.4, ease: "easeInOut" } }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+            <motion.div
+              key={cartBounce}
+              animate={cartBounce > 1 ? { scale: [1, 1.35, 0.9, 1.1, 1] } : { scale: 1 }}
+              transition={{ duration: 0.45, ease: "easeInOut" }}
+            >
+              <IconButton
+                onClick={() => setCartOpen(true)}
+                sx={{
+                  width: 62, height: 62,
+                  background: "linear-gradient(135deg, #1e88e5, #1565c0, #0d47a1)",
+                  color: "#FFF",
+                  borderRadius: "50%",
+                  boxShadow: "0 4px 20px rgba(21,101,192,0.7), 0 0 0 3px rgba(99,179,237,0.3)",
+                  position: "relative",
+                  "&:hover": {
+                    background: "linear-gradient(135deg, #42a5f5, #1e88e5, #1565c0)",
+                    boxShadow: "0 6px 28px rgba(21,101,192,0.85), 0 0 0 4px rgba(99,179,237,0.4)",
+                    transform: "scale(1.08)",
+                  },
+                  transition: "all 0.25s ease",
+                }}
+              >
+                <Badge
+                  badgeContent={conteo}
+                  max={99}
+                  sx={{
+                    "& .MuiBadge-badge": {
+                      background: "linear-gradient(135deg, #ff6b6b, #e53935)",
+                      color: "white",
+                      fontWeight: 800,
+                      fontSize: "0.7rem",
+                      minWidth: 20,
+                      height: 20,
+                      borderRadius: "10px",
+                      boxShadow: "0 2px 6px rgba(229,57,53,0.6)",
+                    },
+                  }}
+                >
+                  <ShoppingCartIcon sx={{ fontSize: 28 }} />
+                </Badge>
+              </IconButton>
+            </motion.div>
+            </motion.div>
+          </Box>
+        )}
+        </AnimatePresence>
+
+        {/* Botón WhatsApp */}
         {!isRouteFallbackVisible && location.pathname !== "/administracion" && location.pathname !== "/dashboard" && location.pathname !== "/configurar-productos" && location.pathname !== "/configurar-trabajos" && (
           <Box sx={{ position: "fixed", bottom: "20px", right: "20px", zIndex: 100, transition: "bottom 0.3s ease", }}>
-            <IconButton onClick={() => { window.open("https://api.whatsapp.com/send?phone=15617975986", "_blank"); setHasInteracted(true); }} sx={{
+            <IconButton onClick={() => { window.open("https://api.whatsapp.com/send?phone=56957581093", "_blank"); setHasInteracted(true); }} sx={{
               width: 60, height: 60, backgroundColor: "#25d366", color: "#FFF", borderRadius: "50%", boxShadow: "2px 2px 3px #999", "&:hover": { backgroundColor: "#1ebe5d" }, zIndex: 101
             }}>
               <WhatsAppIcon sx={{ fontSize: 30 }} />
@@ -362,6 +450,8 @@ function App() {
         onClose={() => { }}
         onSelect={() => { }}
       />
+      <CartDialog open={cartOpen} onClose={() => setCartOpen(false)} />
+      <FlyToCart />
     </ThemeProvider>
   );
 }

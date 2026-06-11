@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Container, Typography, Button, Card, CardContent, Snackbar, Alert, Dialog, AppBar, Toolbar, Paper,
   Box, Grid, TextField, IconButton, Collapse, FormControlLabel, Checkbox, useMediaQuery, useTheme,
@@ -36,21 +36,95 @@ const ConfigurarProductos = () => {
   const [videoActualizado, setVideoActualizado] = useState(false);
   const [previewVideo, setPreviewVideo] = useState(null);
   const [modoFormulario, setModoFormulario] = useState('editar'); // 'nuevo' | 'editar'
+  const [imagenPosX, setImagenPosX] = useState(50);
+  const [imagenPosY, setImagenPosY] = useState(50);
+  const [imagenZoom, setImagenZoom] = useState(1);
+  const dragRef = useRef({ active: false, rect: null, hasDragged: false });
+
+  const handleImageMouseDown = (e) => {
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    dragRef.current = { active: true, rect, hasDragged: false };
+
+    const move = (me) => {
+      if (!dragRef.current.active) return;
+      dragRef.current.hasDragged = true;
+      const r = dragRef.current.rect;
+      const x = Math.round(Math.max(0, Math.min(100, (me.clientX - r.left) / r.width * 100)));
+      const y = Math.round(Math.max(0, Math.min(100, (me.clientY - r.top) / r.height * 100)));
+      setImagenPosX(x);
+      setImagenPosY(y);
+      setNuevoProducto(p => ({ ...p, ImagenPosicion: `${x}% ${y}%` }));
+    };
+
+    const up = () => {
+      dragRef.current.active = false;
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+    };
+
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
+  };
+
+  const handleImageTouchStart = (e) => {
+    const touch = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    dragRef.current = { active: true, rect, hasDragged: false };
+
+    const move = (te) => {
+      if (!dragRef.current.active) return;
+      dragRef.current.hasDragged = true;
+      const t = te.touches[0];
+      const r = dragRef.current.rect;
+      const x = Math.round(Math.max(0, Math.min(100, (t.clientX - r.left) / r.width * 100)));
+      const y = Math.round(Math.max(0, Math.min(100, (t.clientY - r.top) / r.height * 100)));
+      setImagenPosX(x);
+      setImagenPosY(y);
+      setNuevoProducto(p => ({ ...p, ImagenPosicion: `${x}% ${y}%` }));
+    };
+
+    const end = () => {
+      dragRef.current.active = false;
+      document.removeEventListener('touchmove', move);
+      document.removeEventListener('touchend', end);
+    };
+
+    document.addEventListener('touchmove', move, { passive: true });
+    document.addEventListener('touchend', end);
+  };
+
+  const handleLabelClick = (e) => {
+    if (dragRef.current.hasDragged) {
+      e.preventDefault();
+      dragRef.current.hasDragged = false;
+    }
+  };
+
+  const cambiarZoom = (delta) => {
+    setImagenZoom(prev => {
+      const next = Math.round(Math.max(0.3, Math.min(3, prev + delta)) * 100) / 100;
+      setNuevoProducto(p => ({ ...p, ImagenZoom: next }));
+      return next;
+    });
+  };
 
   const productoVacio = {
-    IdProducto:    '',
-    NombreProducto:'',
-    Descripcion:   '',
-    Categoria:     '',
-    Valor:         '',
-    ValorOriginal: '',
-    Stock:         '',
-    Activo:        true,
-    Destacado:     false,
-    ConDescuento:  false,
-    Orden:         '',
-    ImageUrl:      '',
-    VideoUrl:      '',
+    IdProducto:     '',
+    NombreProducto: '',
+    Descripcion:    '',
+    Categoria:      '',
+    Valor:          '',
+    ValorOriginal:  '',
+    Stock:          '',
+    Activo:         true,
+    Destacado:      false,
+    ConDescuento:   false,
+    Orden:          '',
+    ImageUrl:       '',
+    VideoUrl:       '',
+    ImagenPosicion: '50% 50%',
+    ImagenZoom:     1,
   };
 
   const [nuevoProducto, setNuevoProducto] = useState(productoVacio);
@@ -65,6 +139,7 @@ const ConfigurarProductos = () => {
 
   const recargarProductos = async () => {
     const data = await cargarProductos();
+    console.log('🔄 [RELOAD] primer producto recibido:', data[0]);
     const ordenados = [...data].sort((a, b) => String(a.IdProducto).localeCompare(String(b.IdProducto)));
     setProductos(ordenados);
   };
@@ -74,7 +149,15 @@ const ConfigurarProductos = () => {
     setSelected(index);
     setPreviewImagen(null);
     setPreviewVideo(null);
-    setNuevoProducto({ ...productos[index] });
+    const p = productos[index];
+    const zoom = Number(p.ImagenZoom) || 1;
+    const pos = (p.ImagenPosicion || '50% 50%').split(' ');
+    const posX = parseInt(pos[0]) || 50;
+    const posY = parseInt(pos[1]) || 50;
+    setNuevoProducto({ ...p, ImagenPosicion: p.ImagenPosicion || '50% 50%', ImagenZoom: zoom });
+    setImagenPosX(posX);
+    setImagenPosY(posY);
+    setImagenZoom(zoom);
     setDialogEditarOpen(true);
   };
 
@@ -134,11 +217,18 @@ const ConfigurarProductos = () => {
     const url = `${functionsBaseUrl}/.netlify/functions/actualizarProducto`;
     setActualizando(true);
 
+    const payload = {
+      ...nuevoProducto,
+      ImagenZoom: imagenZoom,
+      ImagenPosicion: `${imagenPosX}% ${imagenPosY}%`,
+    };
+    console.log('📦 [GUARDAR] payload enviado:', payload);
+
     try {
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ producto: nuevoProducto }),
+        body: JSON.stringify({ producto: payload }),
       });
 
       await res.json();
@@ -281,6 +371,9 @@ const ConfigurarProductos = () => {
               setModoFormulario('nuevo');
               setSelected(null);
               setNuevoProducto({ ...productoVacio, IdProducto: nextId });
+              setImagenPosX(50);
+              setImagenPosY(50);
+              setImagenZoom(1);
               setDialogEditarOpen(true);
             }}
             sx={{
@@ -330,13 +423,21 @@ const ConfigurarProductos = () => {
                   >
                     {/* IMAGEN */}
                     <Box
+                      component="img"
                       className="card-img"
+                      src={`${producto.ImageUrl}?v=${producto.IdProducto}-${producto.Valor}`}
+                      alt=""
                       sx={{
                         position: 'absolute',
                         inset: 0,
-                        backgroundImage: `url(${producto.ImageUrl}?v=${producto.IdProducto}-${producto.Valor})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
+                        width: '100%',
+                        height: '100%',
+                        objectFit: (producto.ImagenZoom || 1) < 1 ? 'contain' : 'cover',
+                        objectPosition: producto.ImagenPosicion || 'center',
+                        transform: (producto.ImagenZoom || 1) > 1
+                          ? `scale(${producto.ImagenZoom})`
+                          : 'none',
+                        transformOrigin: producto.ImagenPosicion || 'center',
                         transition: 'transform 0.4s ease',
                       }}
                     />
@@ -402,7 +503,7 @@ const ConfigurarProductos = () => {
                           fontFamily: "'Poppins', sans-serif",
                         }}
                       >
-                        ${producto.Valor}
+                        ${Number(producto.Valor).toLocaleString('es-CL')}
                       </Typography>
                       <Typography
                         sx={{
@@ -425,7 +526,7 @@ const ConfigurarProductos = () => {
                         display: 'flex',
                         flexDirection: 'column',
                         gap: 0.6,
-                        opacity: 0,
+                        opacity: isMobile ? 1 : 0,
                         transition: 'opacity 0.25s ease',
                       }}
                     >
@@ -639,28 +740,107 @@ const ConfigurarProductos = () => {
               {/* ── COLUMNA DERECHA: imagen + video ── */}
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
 
-                {/* IMAGEN */}
+                {/* IMAGEN — sin imagen: upload prompt / con imagen: preview productcard */}
+                {(previewImagen || nuevoProducto.ImageUrl) && (
+                  <Box sx={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    mb: 0.5, px: 1.5, py: 0.9, borderRadius: 2,
+                    background: modoFormulario === 'nuevo'
+                      ? 'linear-gradient(135deg, #1a3a2a, #2d6a4f, #40916c)'
+                      : 'linear-gradient(135deg, #1a2a3a, #2d4a6a, #3a6b9e)',
+                  }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography sx={{ fontSize: '0.85rem', color: '#ffe082', lineHeight: 1 }}>◉</Typography>
+                      <Typography sx={{ fontSize: '0.72rem', fontWeight: 600, color: '#fff', letterSpacing: '0.02em', fontFamily: "'Poppins', sans-serif" }}>
+                        Preview
+                      </Typography>
+                    </Box>
+                    <Typography sx={{ fontSize: '0.62rem', color: 'rgba(255,255,255,0.45)' }}>
+                      ↖ arrastra para enfocar
+                    </Typography>
+                  </Box>
+                )}
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'stretch', gap: 1 }}>
                 <Box
                   component="label"
+                  onClick={handleLabelClick}
+                  onMouseDown={(previewImagen || nuevoProducto.ImageUrl) ? handleImageMouseDown : undefined}
+                  onTouchStart={(previewImagen || nuevoProducto.ImageUrl) ? handleImageTouchStart : undefined}
+                  onWheel={(previewImagen || nuevoProducto.ImageUrl) ? (e) => { e.preventDefault(); cambiarZoom(e.deltaY > 0 ? -0.1 : 0.1); } : undefined}
                   sx={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    aspectRatio: '4/3', borderRadius: 2.5, overflow: 'hidden',
-                    border: '2px dashed #c9b0b8', cursor: 'pointer', position: 'relative',
-                    backgroundColor: '#fff',
-                    backgroundImage: previewImagen || nuevoProducto.ImageUrl
-                      ? `url(${previewImagen || nuevoProducto.ImageUrl})`
-                      : 'none',
-                    backgroundSize: 'cover', backgroundPosition: 'center',
-                    transition: 'border-color 0.2s',
+                    display: 'block', borderRadius: 2.5, overflow: 'hidden',
+                    border: '2px dashed #c9b0b8', position: 'relative',
+                    backgroundColor: '#fff', transition: 'border-color 0.2s',
+                    cursor: (previewImagen || nuevoProducto.ImageUrl) ? 'crosshair' : 'pointer',
+                    width: (previewImagen || nuevoProducto.ImageUrl) ? 155 : '100%',
+                    aspectRatio: '2 / 3',
                     '&:hover': { borderColor: '#7b4b5a' },
                   }}
                 >
-                  {!previewImagen && !nuevoProducto.ImageUrl && (
-                    <Box sx={{ textAlign: 'center', color: '#aaa' }}>
-                      <Typography sx={{ fontSize: '2rem', lineHeight: 1 }}>📷</Typography>
-                      <Typography sx={{ fontSize: '0.72rem', mt: 0.5 }}>Subir imagen</Typography>
+                  {!(previewImagen || nuevoProducto.ImageUrl) && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center', color: '#aaa' }}>
+                      <Box>
+                        <Typography sx={{ fontSize: '2rem', lineHeight: 1 }}>📷</Typography>
+                        <Typography sx={{ fontSize: '0.72rem', mt: 0.5 }}>Subir imagen</Typography>
+                      </Box>
                     </Box>
                   )}
+
+                  {(previewImagen || nuevoProducto.ImageUrl) && (
+                    <>
+                      <Box
+                        component="img"
+                        src={previewImagen || nuevoProducto.ImageUrl}
+                        alt=""
+                        sx={{
+                          width: '100%', height: '100%', display: 'block',
+                          // zoom >= 1: recorte como en tienda. zoom < 1: imagen completa con letterbox
+                          objectFit: imagenZoom < 1 ? 'contain' : 'cover',
+                          objectPosition: `${imagenPosX}% ${imagenPosY}%`,
+                          transform: imagenZoom >= 1 ? `scale(${imagenZoom})` : 'none',
+                          transformOrigin: `${imagenPosX}% ${imagenPosY}%`,
+                          transition: 'all 0.15s ease',
+                          backgroundColor: imagenZoom < 1 ? '#fff' : 'transparent',
+                        }}
+                      />
+                      {/* Crosshair del punto focal */}
+                      <Box sx={{ position: 'absolute', left: `${imagenPosX}%`, top: `${imagenPosY}%`, transform: 'translate(-50%,-50%)', pointerEvents: 'none', zIndex: 3 }}>
+                        <Box sx={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid #fff', boxShadow: '0 0 0 1px rgba(0,0,0,0.6), inset 0 0 0 2px rgba(0,0,0,0.2)' }} />
+                      </Box>
+                      {/* Líneas guía */}
+                      <Box sx={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2, overflow: 'hidden' }}>
+                        <Box sx={{ position: 'absolute', left: 0, right: 0, top: `${imagenPosY}%`, height: '1px', background: 'rgba(255,255,255,0.35)' }} />
+                        <Box sx={{ position: 'absolute', top: 0, bottom: 0, left: `${imagenPosX}%`, width: '1px', background: 'rgba(255,255,255,0.35)' }} />
+                      </Box>
+
+                      {/* Badge "vista completa" cuando zoom < 1 */}
+                      {imagenZoom < 1 && (
+                        <Box sx={{ position: 'absolute', top: 6, left: '50%', transform: 'translateX(-50%)', bgcolor: 'rgba(0,0,0,0.55)', px: 1, py: 0.3, borderRadius: 10, pointerEvents: 'none', zIndex: 4 }}>
+                          <Typography sx={{ fontSize: '0.55rem', color: '#fff', whiteSpace: 'nowrap', letterSpacing: '0.03em' }}>Vista completa</Typography>
+                        </Box>
+                      )}
+
+                      {/* Overlay gradiente + info — igual que ProductCard en Features */}
+                      <Box sx={{
+                        position: 'absolute', bottom: 0, left: 0, right: 0,
+                        background: 'linear-gradient(0deg, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.0) 100%)',
+                        px: 1.4, pt: 3, pb: 1.2, pointerEvents: 'none',
+                      }}>
+                        <Typography sx={{
+                          color: '#fff', fontWeight: 800, fontSize: '0.78rem',
+                          fontFamily: "'Poppins', sans-serif", lineHeight: 1.2, mb: 0.3,
+                          textTransform: 'uppercase', letterSpacing: '0.02em',
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}>
+                          {nuevoProducto.NombreProducto || 'Nombre del producto'}
+                        </Typography>
+                        <Typography sx={{ color: '#FFD54F', fontWeight: 900, fontSize: '1rem', fontFamily: "'Poppins', sans-serif" }}>
+                          {nuevoProducto.Valor ? `$${Number(nuevoProducto.Valor).toLocaleString('es-CL')}` : '$0'}
+                        </Typography>
+                      </Box>
+                    </>
+                  )}
+
                   <input type="file" hidden accept="image/*"
                     onChange={async (e) => {
                       const file = e.target.files[0];
@@ -710,6 +890,16 @@ const ConfigurarProductos = () => {
                       </motion.div>
                     )}
                   </AnimatePresence>
+                </Box>
+
+                {/* Botones zoom — columna vertical a la derecha */}
+                {(previewImagen || nuevoProducto.ImageUrl) && (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 0.8 }}>
+                    <Box onClick={() => cambiarZoom(0.01)} sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: '#e8e0e3', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 700, fontSize: '1rem', color: '#5a2e3b', userSelect: 'none', '&:hover': { bgcolor: '#d4c0c8' } }}>+</Box>
+                    <Typography sx={{ fontSize: '0.62rem', color: '#888', textAlign: 'center', lineHeight: 1.2 }}>{Math.round(imagenZoom * 100)}%</Typography>
+                    <Box onClick={() => cambiarZoom(-0.01)} sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: '#e8e0e3', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 700, fontSize: '1rem', color: '#5a2e3b', userSelect: 'none', '&:hover': { bgcolor: '#d4c0c8' } }}>−</Box>
+                  </Box>
+                )}
                 </Box>
 
                 {/* VIDEO */}

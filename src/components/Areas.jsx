@@ -44,7 +44,7 @@ const pasos = [
 ];
 
 function Areas() {
-  const wsp = "https://wa.me/56948898681";
+  const wsp = "https://wa.me/56957581093";
 
   return (
     <Box

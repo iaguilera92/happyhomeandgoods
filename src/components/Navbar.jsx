@@ -253,7 +253,7 @@ function Navbar({ contactoRef, informationsRef, videoReady }) {
           transition: "background 0.6s ease",
           cursor: mostrarTexto ? "default" : "pointer",
         }}
-        onClick={() => !mostrarTexto && window.open("https://wa.me/56948898681", "_blank")}
+        onClick={() => !mostrarTexto && window.open("https://wa.me/56957581093", "_blank")}
       >
         <AnimatePresence mode="wait">
           <motion.div
@@ -290,7 +290,7 @@ function Navbar({ contactoRef, informationsRef, videoReady }) {
                   >
                     🚚
                   </motion.span>
-                  {" ENVÍOS GRATIS"}
+                  {" ENVÍOS GRATIS EN SANTIAGO 🇨🇱"}
                 </>
               ) : (
                 <><WhatsAppIcon sx={{ fontSize: "1rem", mb: "2px" }} /> HÁBLANOS YA!</>

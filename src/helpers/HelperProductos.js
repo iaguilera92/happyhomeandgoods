@@ -16,6 +16,8 @@ function transformarProductos(data) {
     Orden:          Number(row["Orden"])  || 9999,
     ImageUrl:       row["ImageUrl"]       || "",
     VideoUrl:       row["VideoUrl"]       || "",
+    ImagenPosicion: row["ImagenPosicion"] || "50% 50%",
+    ImagenZoom:     Number(row["ImagenZoom"]) || 1,
   }));
 }
 
