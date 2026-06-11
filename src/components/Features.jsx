@@ -92,7 +92,7 @@ function ProductCard({ producto }) {
               </Typography>
             )}
             <Typography sx={{ color: "#FFD54F", fontWeight: 900, fontSize: { xs: "1rem", sm: "1.1rem" }, fontFamily: "'Poppins', sans-serif" }}>
-              {formatPrecio(producto.Valor)}
+              {producto.Pack > 0 ? `${producto.Pack} x ${formatPrecio(producto.Valor)}` : formatPrecio(producto.Valor)}
             </Typography>
           </Box>
 
