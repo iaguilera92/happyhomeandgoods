@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { Box, Typography, Container, IconButton, Dialog, DialogContent, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Typography, Container, IconButton, Dialog, DialogContent, Button, useMediaQuery, useTheme } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import PetsRoundedIcon from "@mui/icons-material/PetsRounded";
@@ -28,7 +28,7 @@ const CATEGORIAS_CONFIG = {
   "Seguridad":   { color: "#1B83CC", icon: <SecurityRoundedIcon />,            grad: "linear-gradient(135deg, #0d6eaf 0%, #1B83CC 100%)", img: "/seguridad.png" },
 };
 
-function ProductCard({ producto }) {
+function ProductCard({ producto, onVerDetalle }) {
   const { agregarAlCarrito } = useCart();
   const [pressed, setPressed] = useState(false);
 
@@ -48,6 +48,7 @@ function ProductCard({ producto }) {
       style={{ borderRadius: 12, overflow: "hidden" }}
     >
     <Box
+      onClick={() => onVerDetalle?.(producto)}
       sx={{
         borderRadius: 3,
         overflow: "hidden",
@@ -129,7 +130,7 @@ function ProductCard({ producto }) {
   );
 }
 
-function CategoriaDialog({ categoria, productos, onClose }) {
+function CategoriaDialog({ categoria, productos, onClose, onVerDetalle }) {
   if (!categoria) return null;
   const productosFiltrados = productos.filter(
     (p) => p.Activo && p.Categoria?.toLowerCase() === categoria.label?.toLowerCase()
@@ -177,7 +178,7 @@ function CategoriaDialog({ categoria, productos, onClose }) {
         ) : (
           <Box sx={{ display: "grid", gridTemplateColumns: { xs: "repeat(2, 1fr)", sm: "repeat(3, 1fr)", md: "repeat(4, 1fr)", lg: "repeat(5, 1fr)" }, gap: { xs: 1.2, sm: 1.8 } }}>
             {productosFiltrados.map((p) => (
-              <ProductCard key={p.IdProducto} producto={p} />
+              <ProductCard key={p.IdProducto} producto={p} onVerDetalle={onVerDetalle} />
             ))}
           </Box>
         )}
@@ -187,7 +188,7 @@ function CategoriaDialog({ categoria, productos, onClose }) {
 }
 
 // Carrusel de una categoría
-function CarruselCategoria({ label, color, icon, productos, swiperRef }) {
+function CarruselCategoria({ label, color, icon, productos, swiperRef, onVerDetalle }) {
   const items = productos.filter((p) => p.Activo && p.Categoria?.toLowerCase() === label.toLowerCase());
   if (items.length === 0) return null;
 
@@ -214,7 +215,7 @@ function CarruselCategoria({ label, color, icon, productos, swiperRef }) {
       <Swiper onSwiper={(s) => (swiperRef.current = s)} spaceBetween={12} slidesPerView="auto" style={{ paddingBottom: "8px" }}>
         {items.map((p) => (
           <SwiperSlide key={p.IdProducto} style={{ width: "180px" }}>
-            <ProductCard producto={p} />
+            <ProductCard producto={p} onVerDetalle={onVerDetalle} />
           </SwiperSlide>
         ))}
       </Swiper>
@@ -222,10 +223,184 @@ function CarruselCategoria({ label, color, icon, productos, swiperRef }) {
   );
 }
 
+function ProductoDialog({ producto, onClose }) {
+  const [slide, setSlide] = useState(0);
+
+  useEffect(() => { setSlide(0); }, [producto?.IdProducto]);
+
+  if (!producto) return null;
+  const tieneVideo = Boolean(producto.VideoUrl?.trim());
+  const slides = tieneVideo ? ["video", "imagen"] : ["imagen"];
+  const precioWsp = producto.Pack > 0 ? `${producto.Pack} x ${formatPrecio(producto.Valor)}` : formatPrecio(producto.Valor);
+  const wspMsg = encodeURIComponent(`Hola! Me interesa ${producto.NombreProducto} por ${precioWsp}, ¿sigue disponible?`);
+
+  return (
+    <Dialog
+      open
+      onClose={onClose}
+      maxWidth="xs"
+      fullWidth
+      disableScrollLock
+      PaperProps={{
+        sx: {
+          borderRadius: 4,
+          overflow: "hidden",
+          bgcolor: "#fff",
+          m: { xs: 1.5, sm: 3 },
+          boxShadow: "0 24px 60px rgba(0,0,0,0.18)",
+        },
+      }}
+    >
+      <Box sx={{ position: "relative" }}>
+
+        {/* Botón cerrar */}
+        <IconButton
+          onClick={onClose}
+          size="small"
+          sx={{
+            position: "absolute", top: 10, right: 10, zIndex: 10,
+            bgcolor: "rgba(255,255,255,0.85)", backdropFilter: "blur(6px)",
+            color: "#444", boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+            "&:hover": { bgcolor: "#fff", color: "#111" },
+          }}
+        >
+          <CloseRoundedIcon sx={{ fontSize: 18 }} />
+        </IconButton>
+
+        {/* Flechas */}
+        {tieneVideo && (
+          <>
+            {[
+              { dir: "left", icon: <ArrowBackIosNewRoundedIcon sx={{ fontSize: 16 }} />, action: () => setSlide((s) => (s - 1 + slides.length) % slides.length) },
+              { dir: "right", icon: <ArrowForwardIosRoundedIcon sx={{ fontSize: 16 }} />, action: () => setSlide((s) => (s + 1) % slides.length) },
+            ].map(({ dir, icon, action }) => (
+              <IconButton
+                key={dir}
+                onClick={action}
+                size="small"
+                sx={{
+                  position: "absolute", [dir]: 10, top: "50%", transform: "translateY(-50%)", zIndex: 10,
+                  bgcolor: "rgba(255,255,255,0.85)", backdropFilter: "blur(6px)",
+                  color: "#444", boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                  "&:hover": { bgcolor: "#fff", color: "#111" },
+                }}
+              >
+                {icon}
+              </IconButton>
+            ))}
+          </>
+        )}
+
+        {/* Media */}
+        <Box sx={{ bgcolor: "#f7f7f7", minHeight: 280, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+          <motion.div
+            key={slide}
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
+            style={{ width: "100%", display: "flex", justifyContent: "center" }}
+          >
+            {slides[slide] === "video" ? (
+              <Box component="video" src={producto.VideoUrl} autoPlay muted loop playsInline
+                sx={{ width: "100%", display: "block", maxHeight: "58vh", objectFit: "contain" }}
+              />
+            ) : (
+              <Box component="img" src={producto.ImageUrl} alt={producto.NombreProducto}
+                sx={{ width: "100%", display: "block", maxHeight: "58vh", objectFit: "contain" }}
+              />
+            )}
+          </motion.div>
+        </Box>
+
+        {/* Dots */}
+        {tieneVideo && (
+          <Box sx={{ display: "flex", justifyContent: "center", gap: 0.6, pt: 1.2, pb: 0.2 }}>
+            {slides.map((_, i) => (
+              <Box key={i} onClick={() => setSlide(i)} sx={{
+                width: slide === i ? 18 : 6, height: 6, borderRadius: 3,
+                bgcolor: slide === i ? "#c9783c" : "rgba(0,0,0,0.15)",
+                cursor: "pointer", transition: "all 0.25s ease",
+              }} />
+            ))}
+          </Box>
+        )}
+
+        {/* Info */}
+        <Box sx={{ px: 2.5, pt: tieneVideo ? 1.2 : 2, pb: 2.5 }}>
+          {producto.Categoria && (
+            <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: "#c9783c", textTransform: "uppercase", letterSpacing: "0.1em", mb: 0.5, fontFamily: "'Poppins', sans-serif" }}>
+              {producto.Categoria}
+            </Typography>
+          )}
+          <Typography sx={{ color: "#111", fontWeight: 800, fontSize: "1.05rem", fontFamily: "'Poppins', sans-serif", lineHeight: 1.25, mb: 0.5 }}>
+            {producto.NombreProducto}
+          </Typography>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.2 }}>
+            <Typography sx={{ color: "#c9783c", fontWeight: 900, fontSize: "1.2rem", fontFamily: "'Poppins', sans-serif" }}>
+              {producto.Pack > 0 ? `${producto.Pack} x ${formatPrecio(producto.Valor)}` : formatPrecio(producto.Valor)}
+            </Typography>
+            {producto.ConDescuento && producto.ValorOriginal > 0 && (
+              <Typography sx={{ color: "#bbb", fontWeight: 500, fontSize: "0.82rem", textDecoration: "line-through", fontFamily: "'Poppins', sans-serif" }}>
+                {formatPrecio(producto.ValorOriginal)}
+              </Typography>
+            )}
+          </Box>
+
+          <Typography sx={{
+            color: producto.Descripcion?.trim() ? "#555" : "#ccc",
+            fontSize: "0.78rem", fontFamily: "'Poppins', sans-serif",
+            lineHeight: 1.6, mb: 2,
+            fontStyle: producto.Descripcion?.trim() ? "normal" : "italic",
+          }}>
+            {producto.Descripcion?.trim() || "Sin descripción"}
+          </Typography>
+
+          <Button
+            component="a"
+            href={`https://wa.me/${WSP}?text=${wspMsg}`}
+            target="_blank" rel="noopener noreferrer"
+            variant="contained" fullWidth
+            sx={{
+              position: "relative", overflow: "hidden",
+              background: "linear-gradient(135deg, #25D366 0%, #128C7E 100%)",
+              "&:hover": {
+                background: "linear-gradient(135deg, #2edc6f 0%, #0fa070 100%)",
+                boxShadow: "0 8px 28px rgba(37,211,102,0.55)",
+                transform: "translateY(-1px)",
+              },
+              borderRadius: 2.5, textTransform: "none", fontWeight: 800,
+              fontSize: "0.95rem", py: 1.4, letterSpacing: "0.02em",
+              boxShadow: "0 4px 18px rgba(37,211,102,0.4)",
+              transition: "all 0.2s ease",
+              "&::after": {
+                content: '""',
+                position: "absolute",
+                top: 0, left: "-100%",
+                width: "60%", height: "100%",
+                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+                animation: "btnShine 2.8s infinite",
+              },
+              "@keyframes btnShine": {
+                "0%":   { left: "-100%" },
+                "60%":  { left: "200%" },
+                "100%": { left: "200%" },
+              },
+            }}
+          >
+            Comprar
+          </Button>
+        </Box>
+      </Box>
+    </Dialog>
+  );
+}
+
 function Features() {
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [categoriaAbierta, setCategoriaAbierta] = useState(null);
+  const [productoAbierto, setProductoAbierto] = useState(null);
 
   const swiperCocina     = useRef(null);
   const swiperLimpieza   = useRef(null);
@@ -291,8 +466,8 @@ function Features() {
         </motion.div>
 
         {/* ── Carruseles ── */}
-        <CarruselCategoria label="Accesorios" color="#c0392b" icon={<AutoAwesomeRoundedIcon sx={{ fontSize: 18 }} />} productos={productosActivos} swiperRef={swiperAccesorios} />
-        <CarruselCategoria label="Cocina"     color="#d97706" icon={<RiceBowlRoundedIcon sx={{ fontSize: 18 }} />}    productos={productosActivos} swiperRef={swiperCocina}     />
+        <CarruselCategoria label="Accesorios" color="#c0392b" icon={<AutoAwesomeRoundedIcon sx={{ fontSize: 18 }} />} productos={productosActivos} swiperRef={swiperAccesorios} onVerDetalle={setProductoAbierto} />
+        <CarruselCategoria label="Cocina"     color="#d97706" icon={<RiceBowlRoundedIcon sx={{ fontSize: 18 }} />}    productos={productosActivos} swiperRef={swiperCocina}     onVerDetalle={setProductoAbierto} />
 
         {/* ── Banner destacado ── */}
         {productoDestacado && (
@@ -326,7 +501,7 @@ function Features() {
           </motion.div>
         )}
 
-        <CarruselCategoria label="Limpieza"  color="#017458" icon={<CleaningServicesRoundedIcon sx={{ fontSize: 18 }} />} productos={productosActivos} swiperRef={swiperLimpieza}  />
+        <CarruselCategoria label="Limpieza"  color="#017458" icon={<CleaningServicesRoundedIcon sx={{ fontSize: 18 }} />} productos={productosActivos} swiperRef={swiperLimpieza}  onVerDetalle={setProductoAbierto} />
 
         {/* ── Banner video ── */}
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, ease: "easeOut" }}>
@@ -344,7 +519,7 @@ function Features() {
           </Box>
         </motion.div>
 
-        <CarruselCategoria label="Seguridad" color="#1B83CC" icon={<SecurityRoundedIcon sx={{ fontSize: 18 }} />} productos={productosActivos} swiperRef={swiperSeguridad} />
+        <CarruselCategoria label="Seguridad" color="#1B83CC" icon={<SecurityRoundedIcon sx={{ fontSize: 18 }} />} productos={productosActivos} swiperRef={swiperSeguridad} onVerDetalle={setProductoAbierto} />
 
       </Container>
 
@@ -352,7 +527,10 @@ function Features() {
         categoria={categoriaAbierta}
         productos={productos}
         onClose={() => setCategoriaAbierta(null)}
+        onVerDetalle={setProductoAbierto}
       />
+
+      <ProductoDialog producto={productoAbierto} onClose={() => setProductoAbierto(null)} />
     </Box>
   );
 }

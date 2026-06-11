@@ -69,9 +69,12 @@ export default function CartDialog({ open, onClose }) {
     setErrors(newErrors);
     if (newErrors.nombre || newErrors.direccion) return;
 
-    const lineas = items.map(
-      (i) => `• ${i.NombreProducto} x${i.cantidad} = ${FormatearPesos(i.Valor * i.cantidad)}`
-    ).join("\n");
+    const lineas = items.map((i) => {
+      const packs  = i.Pack > 0 ? i.cantidad / i.Pack : i.cantidad;
+      const subtot = i.Pack > 0 ? i.Valor * packs : i.Valor * i.cantidad;
+      const qty    = i.Pack > 0 ? `${packs} pack` : `x${i.cantidad}`;
+      return `• ${i.NombreProducto} ${qty} = ${FormatearPesos(subtot)}`;
+    }).join("\n");
 
     const mensaje =
       `*Pedido Happy Home & Goods*\n\n` +
@@ -89,8 +92,8 @@ export default function CartDialog({ open, onClose }) {
           ${i.ImageUrl ? `<img src="${i.ImageUrl}" alt="${i.NombreProducto}" width="48" height="48" style="border-radius:8px;object-fit:cover;vertical-align:middle;margin-right:10px;border:1px solid #ddd;" />` : ""}
           <span style="vertical-align:middle;font-size:12px;">${i.NombreProducto}</span>
         </td>
-        <td style="padding:10px 12px;text-align:center;font-size:12px;">${i.cantidad}</td>
-        <td style="padding:10px 12px;text-align:right;font-size:12px;">${FormatearPesos(i.Valor * i.cantidad)}</td>
+        <td style="padding:10px 12px;text-align:center;font-size:12px;">${i.Pack > 0 ? `${i.cantidad / i.Pack} pack` : i.cantidad}</td>
+        <td style="padding:10px 12px;text-align:right;font-size:12px;">${i.Pack > 0 ? FormatearPesos(i.Valor * (i.cantidad / i.Pack)) : FormatearPesos(i.Valor * i.cantidad)}</td>
       </tr>
     `).join("");
 
@@ -236,10 +239,14 @@ export default function CartDialog({ open, onClose }) {
                           {item.NombreProducto}
                         </Typography>
                         <Typography fontSize="0.75rem" sx={{ color: "#ffe082", fontWeight: 700 }}>
-                          {FormatearPesos(item.Valor)} × {item.cantidad}
+                          {item.Pack > 0
+                            ? `${item.Pack} x ${FormatearPesos(item.Valor)}`
+                            : `${FormatearPesos(item.Valor)} × ${item.cantidad}`}
                         </Typography>
                         <Typography fontSize="0.72rem" sx={{ color: "rgba(255,255,255,0.45)" }}>
-                          = {FormatearPesos(item.Valor * item.cantidad)}
+                          = {item.Pack > 0
+                            ? FormatearPesos(item.Valor * (item.cantidad / item.Pack))
+                            : FormatearPesos(item.Valor * item.cantidad)}
                         </Typography>
                       </Box>
                       <IconButton

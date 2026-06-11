@@ -42,7 +42,8 @@ export const CartProvider = ({ children }) => {
 
   const vaciarCarrito = () => setItems([]);
 
-  const total = items.reduce((acc, i) => acc + i.Valor * i.cantidad, 0);
+  const subtotalItem = (i) => i.Pack > 0 ? i.Valor * (i.cantidad / i.Pack) : i.Valor * i.cantidad;
+  const total = items.reduce((acc, i) => acc + subtotalItem(i), 0);
   const conteo = items.reduce((acc, i) => acc + i.cantidad, 0);
 
   return (

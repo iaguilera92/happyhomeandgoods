@@ -53,7 +53,7 @@ const Nosotros = () => {
             content: '""',
             position: "absolute",
             inset: 0,
-            background: "linear-gradient(135deg, rgba(1,80,60,0.78) 0%, rgba(0,25,15,0.58) 100%)",
+            background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.15) 100%)",
             zIndex: 1,
           },
         }}
