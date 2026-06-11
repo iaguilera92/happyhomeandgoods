@@ -70,9 +70,8 @@ export default function CartDialog({ open, onClose }) {
     if (newErrors.nombre || newErrors.direccion) return;
 
     const lineas = items.map((i) => {
-      const packs  = i.Pack > 0 ? i.cantidad / i.Pack : i.cantidad;
-      const subtot = i.Pack > 0 ? i.Valor * packs : i.Valor * i.cantidad;
-      const qty    = i.Pack > 0 ? `${packs} pack` : `x${i.cantidad}`;
+      const subtot = i.Pack > 0 ? i.Valor * (i.cantidad / i.Pack) : i.Valor * i.cantidad;
+      const qty    = i.Pack > 0 ? `${i.Pack} x` : `x${i.cantidad}`;
       return `• ${i.NombreProducto} ${qty} = ${FormatearPesos(subtot)}`;
     }).join("\n");
 
@@ -92,7 +91,7 @@ export default function CartDialog({ open, onClose }) {
           ${i.ImageUrl ? `<img src="${i.ImageUrl}" alt="${i.NombreProducto}" width="48" height="48" style="border-radius:8px;object-fit:cover;vertical-align:middle;margin-right:10px;border:1px solid #ddd;" />` : ""}
           <span style="vertical-align:middle;font-size:12px;">${i.NombreProducto}</span>
         </td>
-        <td style="padding:10px 12px;text-align:center;font-size:12px;">${i.Pack > 0 ? `${i.cantidad / i.Pack} pack` : i.cantidad}</td>
+        <td style="padding:10px 12px;text-align:center;font-size:12px;">${i.Pack > 0 ? `${i.Pack} x` : i.cantidad}</td>
         <td style="padding:10px 12px;text-align:right;font-size:12px;">${i.Pack > 0 ? FormatearPesos(i.Valor * (i.cantidad / i.Pack)) : FormatearPesos(i.Valor * i.cantidad)}</td>
       </tr>
     `).join("");
