@@ -147,6 +147,7 @@ exports.handler = async (event) => {
             VideoUrl:       videoFinal,
             ImagenPosicion: producto.ImagenPosicion || "50% 50%",
             ImagenZoom:     producto.ImagenZoom     || 1,
+            Pack:           Number(producto.Pack)   || 0,
         };
 
         datos.push(nuevoProducto);
@@ -156,7 +157,7 @@ exports.handler = async (event) => {
             "IdProducto", "NombreProducto", "Descripcion", "Categoria",
             "Valor", "ValorOriginal", "Stock", "Activo", "Destacado",
             "ConDescuento", "Orden", "ImageUrl", "VideoUrl",
-            "ImagenPosicion", "ImagenZoom"
+            "ImagenPosicion", "ImagenZoom", "Pack"
         ];
 
         const nuevaHoja = XLSX.utils.json_to_sheet(datos, { header: COLUMNAS });

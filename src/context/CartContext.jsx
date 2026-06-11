@@ -7,18 +7,19 @@ export const CartProvider = ({ children }) => {
   const [flyAnim, setFlyAnim] = useState(null); // { from: {x,y}, imgUrl }
 
   const agregarAlCarrito = (producto, fromRect = null) => {
+    const pack = producto.Pack > 1 ? producto.Pack : 1;
     setItems((prev) => {
       const existe = prev.find((i) => i.IdProducto === producto.IdProducto);
       if (existe) {
         if (existe.cantidad >= producto.Stock) return prev;
         return prev.map((i) =>
           i.IdProducto === producto.IdProducto
-            ? { ...i, cantidad: i.cantidad + 1 }
+            ? { ...i, cantidad: i.cantidad + pack }
             : i
         );
       }
       if (producto.Stock < 1) return prev;
-      return [...prev, { ...producto, cantidad: 1 }];
+      return [...prev, { ...producto, cantidad: pack }];
     });
 
     if (fromRect) {

@@ -40,6 +40,15 @@ const ConfigurarProductos = () => {
   const [imagenPosY, setImagenPosY] = useState(50);
   const [imagenZoom, setImagenZoom] = useState(1);
   const dragRef = useRef({ active: false, rect: null, hasDragged: false });
+  const zoomIntervalRef = useRef(null);
+
+  const startZoom = (delta) => {
+    cambiarZoom(delta);
+    zoomIntervalRef.current = setInterval(() => cambiarZoom(delta), 80);
+  };
+  const stopZoom = () => {
+    if (zoomIntervalRef.current) { clearInterval(zoomIntervalRef.current); zoomIntervalRef.current = null; }
+  };
 
   const handleImageMouseDown = (e) => {
     e.preventDefault();
@@ -125,6 +134,7 @@ const ConfigurarProductos = () => {
     VideoUrl:       '',
     ImagenPosicion: '50% 50%',
     ImagenZoom:     1,
+    Pack:           '',
   };
 
   const [nuevoProducto, setNuevoProducto] = useState(productoVacio);
@@ -180,6 +190,17 @@ const ConfigurarProductos = () => {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setNuevoProducto((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+  };
+
+  const fmtPrecio = (val) => {
+    if (val === '' || val === undefined || val === null) return '';
+    const n = Number(String(val).replace(/\./g, ''));
+    return isNaN(n) || n === 0 ? (val === '' ? '' : String(val)) : n.toLocaleString('es-CL');
+  };
+
+  const handlePrecioChange = (name) => (e) => {
+    const raw = e.target.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+    setNuevoProducto((prev) => ({ ...prev, [name]: raw }));
   };
 
   const handleGuardar = async () => {
@@ -416,6 +437,7 @@ const ConfigurarProductos = () => {
                       borderRadius: 2.5,
                       overflow: 'hidden',
                       cursor: 'pointer',
+                      backgroundColor: '#fff',
                       boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
                       '&:hover .card-actions': { opacity: 1 },
                       '&:hover .card-img': { transform: 'scale(1.06)' },
@@ -567,7 +589,7 @@ const ConfigurarProductos = () => {
                             <TextField fullWidth label="Nombre" name="NombreProducto" value={nuevoProducto.NombreProducto} onChange={handleInputChange} />
                           </Grid>
                           <Grid item xs={6}>
-                            <TextField fullWidth label="Precio" name="Valor" type="number" value={nuevoProducto.Valor} onChange={handleInputChange} />
+                            <TextField fullWidth label="Precio" name="Valor" value={fmtPrecio(nuevoProducto.Valor)} onChange={handlePrecioChange('Valor')} inputProps={{ inputMode: 'numeric' }} />
                           </Grid>
                           <Grid item xs={6}>
                             <TextField fullWidth label="Stock" name="Stock" type="number" value={nuevoProducto.Stock} onChange={handleInputChange} />
@@ -677,33 +699,48 @@ const ConfigurarProductos = () => {
                 </FormControl>
 
                 <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
-                  <TextField
-                    size="small" label="Precio" name="Valor" type="number"
-                    value={nuevoProducto.Valor} onChange={handleInputChange}
-                    inputProps={{ min: 0, max: 1000000 }}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, backgroundColor: '#fff' } }}
-                  />
-                  <TextField
-                    size="small" label="Precio original" name="ValorOriginal" type="number"
-                    value={nuevoProducto.ValorOriginal} onChange={handleInputChange}
-                    inputProps={{ min: 0, max: 1000000 }}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, backgroundColor: '#fff' } }}
-                  />
-                </Box>
-
-                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
-                  <TextField
-                    size="small" label="Stock" name="Stock" type="number"
-                    value={nuevoProducto.Stock} onChange={handleInputChange}
-                    inputProps={{ min: 0, max: 1000000 }}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, backgroundColor: '#fff' } }}
-                  />
-                  <TextField
-                    size="small" label="Orden" name="Orden" type="number"
-                    value={nuevoProducto.Orden} onChange={handleInputChange}
-                    inputProps={{ min: 0, max: 1000000 }}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, backgroundColor: '#fff' } }}
-                  />
+                  {/* Columna izquierda: Precio, Stock, Pack */}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <TextField
+                      size="small" label="Precio" name="Valor"
+                      value={fmtPrecio(nuevoProducto.Valor)} onChange={handlePrecioChange('Valor')}
+                      inputProps={{ inputMode: 'numeric' }}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, backgroundColor: '#fff' } }}
+                    />
+                    <TextField
+                      size="small" label="Stock" name="Stock" type="number"
+                      value={nuevoProducto.Stock} onChange={handleInputChange}
+                      inputProps={{ min: 0, max: 1000000 }}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, backgroundColor: '#fff' } }}
+                    />
+                    <TextField
+                      size="small" label="Pack" name="Pack" type="number"
+                      value={nuevoProducto.Pack} onChange={handleInputChange}
+                      inputProps={{ min: 0, max: 999, maxLength: 3 }}
+                      onInput={(e) => { if (e.target.value.length > 3) e.target.value = e.target.value.slice(0, 3); }}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, backgroundColor: '#fff' } }}
+                    />
+                  </Box>
+                  {/* Columna derecha: Precio original, Orden, descripción Pack */}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <TextField
+                      size="small" label="Precio original" name="ValorOriginal"
+                      value={fmtPrecio(nuevoProducto.ValorOriginal)} onChange={handlePrecioChange('ValorOriginal')}
+                      inputProps={{ inputMode: 'numeric' }}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, backgroundColor: '#fff' } }}
+                    />
+                    <TextField
+                      size="small" label="Orden" name="Orden" type="number"
+                      value={nuevoProducto.Orden} onChange={handleInputChange}
+                      inputProps={{ min: 0, max: 1000000 }}
+                      sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2, backgroundColor: '#fff' } }}
+                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: '#f0f4ff', border: '1px solid #c7d5f5', borderRadius: 2, px: 1, height: 40 }}>
+                      <Typography sx={{ fontSize: '0.62rem', color: '#3a5db5', lineHeight: 1.35, textAlign: 'center', width: '100%' }}>
+                        ℹ️ Agrega <strong>N</strong> unidades al carrito por click.
+                      </Typography>
+                    </Box>
+                  </Box>
                 </Box>
 
                 <TextField
@@ -895,9 +932,9 @@ const ConfigurarProductos = () => {
                 {/* Botones zoom — columna vertical a la derecha */}
                 {(previewImagen || nuevoProducto.ImageUrl) && (
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 0.8 }}>
-                    <Box onClick={() => cambiarZoom(0.01)} sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: '#e8e0e3', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 700, fontSize: '1rem', color: '#5a2e3b', userSelect: 'none', '&:hover': { bgcolor: '#d4c0c8' } }}>+</Box>
+                    <Box onMouseDown={() => startZoom(0.01)} onMouseUp={stopZoom} onMouseLeave={stopZoom} onTouchStart={() => startZoom(0.01)} onTouchEnd={stopZoom} sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: '#e8e0e3', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 700, fontSize: '1rem', color: '#5a2e3b', userSelect: 'none', '&:hover': { bgcolor: '#d4c0c8' } }}>+</Box>
                     <Typography sx={{ fontSize: '0.62rem', color: '#888', textAlign: 'center', lineHeight: 1.2 }}>{Math.round(imagenZoom * 100)}%</Typography>
-                    <Box onClick={() => cambiarZoom(-0.01)} sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: '#e8e0e3', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 700, fontSize: '1rem', color: '#5a2e3b', userSelect: 'none', '&:hover': { bgcolor: '#d4c0c8' } }}>−</Box>
+                    <Box onMouseDown={() => startZoom(-0.01)} onMouseUp={stopZoom} onMouseLeave={stopZoom} onTouchStart={() => startZoom(-0.01)} onTouchEnd={stopZoom} sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: '#e8e0e3', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontWeight: 700, fontSize: '1rem', color: '#5a2e3b', userSelect: 'none', '&:hover': { bgcolor: '#d4c0c8' } }}>−</Box>
                   </Box>
                 )}
                 </Box>

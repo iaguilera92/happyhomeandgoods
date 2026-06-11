@@ -301,7 +301,7 @@ function Features() {
               <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: { xs: 160, sm: 200 } }}>
 
                 {/* IZQUIERDA — botón centrado */}
-                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", pr: { xs: 2, sm: 8 }, pl: { xs: 2, sm: 2 } }}>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: { xs: "center", sm: "flex-end" }, pr: { xs: 1, sm: 8 }, pl: { xs: 1, sm: 2 } }}>
                   <Box component="a"
                     href={`https://wa.me/${WSP}?text=${encodeURIComponent(`Hola! Me interesa el ${productoDestacado.NombreProducto}, ¿sigue disponible?`)}`}
                     target="_blank" rel="noopener noreferrer"
@@ -311,7 +311,7 @@ function Features() {
                 </Box>
 
                 {/* DERECHA — imagen + precio centrado debajo */}
-                <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-start", pl: { xs: 2, sm: 8 } }}>
+                <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: { xs: "center", sm: "flex-start" }, pl: { xs: 1, sm: 8 } }}>
                   <Box sx={{ position: "relative", display: "inline-block" }}>
                     <Box component="img"
                       src={productoDestacado.ImageUrl}

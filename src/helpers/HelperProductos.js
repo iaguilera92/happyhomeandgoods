@@ -18,6 +18,7 @@ function transformarProductos(data) {
     VideoUrl:       row["VideoUrl"]       || "",
     ImagenPosicion: row["ImagenPosicion"] || "50% 50%",
     ImagenZoom:     Number(row["ImagenZoom"]) || 1,
+    Pack:           Number(row["Pack"])       || 0,
   }));
 }
 
