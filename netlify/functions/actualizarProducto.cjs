@@ -109,8 +109,9 @@ exports.handler = async (event) => {
         }
 
         // 🔹 Resolver video final
+        // Si viene undefined/null (campo no enviado) conservar el anterior; si viene '' es borrado intencional
         const videoFinal =
-            producto.VideoUrl && producto.VideoUrl.trim() !== ""
+            producto.VideoUrl !== undefined && producto.VideoUrl !== null
                 ? producto.VideoUrl
                 : productoAnterior?.VideoUrl || "";
 

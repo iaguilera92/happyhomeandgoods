@@ -15,6 +15,7 @@ import SettingsSuggestIcon from '@mui/icons-material/SettingsSuggest';
 import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
 import ArrowForwardIosRoundedIcon from '@mui/icons-material/ArrowForwardIosRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
+import VideocamOffRoundedIcon from '@mui/icons-material/VideocamOffRounded';
 import { cargarProductos } from '../../helpers/HelperProductos';
 import { DialogEliminarProducto, DialogRestaurarProductos } from './DialogosProductos';
 import MenuInferior from '../configuraciones/MenuInferior';
@@ -38,6 +39,7 @@ const ConfigurarProductos = () => {
   const [subiendoVideo, setSubiendoVideo] = useState(false);
   const [videoActualizado, setVideoActualizado] = useState(false);
   const [previewVideo, setPreviewVideo] = useState(null);
+  const [eliminandoVideo, setEliminandoVideo] = useState(false);
   const [modoFormulario, setModoFormulario] = useState('editar'); // 'nuevo' | 'editar'
   const [imagenPosX, setImagenPosX] = useState(50);
   const [imagenPosY, setImagenPosY] = useState(50);
@@ -205,6 +207,27 @@ const ConfigurarProductos = () => {
   const handlePrecioChange = (name) => (e) => {
     const raw = e.target.value.replace(/\./g, '').replace(/[^0-9]/g, '');
     setNuevoProducto((prev) => ({ ...prev, [name]: raw }));
+  };
+
+  const handleEliminarVideo = async () => {
+    if (!nuevoProducto.IdProducto) return;
+    setEliminandoVideo(true);
+    try {
+      const res = await fetch(`${functionsBaseUrl}/.netlify/functions/eliminarVideoProducto`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productoId: nuevoProducto.IdProducto, videoUrl: nuevoProducto.VideoUrl }),
+      });
+      if (!res.ok) throw new Error('Error al eliminar video');
+      setNuevoProducto((prev) => ({ ...prev, VideoUrl: '' }));
+      setPreviewVideo(null);
+      setSnackbar({ open: true, message: '✅ Video eliminado correctamente' });
+    } catch (err) {
+      console.error(err);
+      setSnackbar({ open: true, message: 'Error al eliminar el video' });
+    } finally {
+      setEliminandoVideo(false);
+    }
   };
 
   const handleGuardar = async () => {
@@ -983,7 +1006,7 @@ const ConfigurarProductos = () => {
                     '&:hover': { borderColor: '#7b4b5a' },
                   }}
                 >
-                  {(previewVideo || nuevoProducto.VideoUrl) ? (
+                  {(previewVideo || nuevoProducto.VideoUrl?.startsWith('http')) ? (
                     <video src={previewVideo || nuevoProducto.VideoUrl} controls style={{ width: '100%', maxHeight: 120, display: 'block' }} />
                   ) : (
                     <Box sx={{ textAlign: 'center', color: '#aaa', py: 1 }}>
@@ -1041,6 +1064,31 @@ const ConfigurarProductos = () => {
                     )}
                   </AnimatePresence>
                 </Box>
+
+                {/* BOTÓN ELIMINAR VIDEO */}
+                {(nuevoProducto.VideoUrl?.startsWith('http') && !previewVideo) && (
+                  <Button
+                    fullWidth
+                    size="small"
+                    variant="outlined"
+                    startIcon={<VideocamOffRoundedIcon sx={{ fontSize: 15 }} />}
+                    onClick={handleEliminarVideo}
+                    disabled={eliminandoVideo}
+                    sx={{
+                      borderColor: '#c62828',
+                      color: '#c62828',
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      fontWeight: 600,
+                      fontSize: '0.75rem',
+                      py: 0.5,
+                      '&:hover': { backgroundColor: 'rgba(198,40,40,0.08)', borderColor: '#b71c1c' },
+                    }}
+                  >
+                    {eliminandoVideo ? 'Eliminando...' : 'Eliminar video'}
+                  </Button>
+                )}
+
               </Box>
             </Box>
 
