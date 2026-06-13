@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { Box, Typography, Container, IconButton, Dialog, DialogContent, Button, useMediaQuery, useTheme } from "@mui/material";
+import { Box, Typography, Container, IconButton, Dialog, DialogContent, Button, Drawer, useMediaQuery, useTheme } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import PetsRoundedIcon from "@mui/icons-material/PetsRounded";
@@ -226,6 +226,8 @@ function CarruselCategoria({ label, color, icon, productos, swiperRef, onVerDeta
 
 function ProductoDialog({ producto, onClose }) {
   const [slide, setSlide] = useState(0);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => { setSlide(0); }, [producto?.IdProducto]);
 
@@ -235,38 +237,34 @@ function ProductoDialog({ producto, onClose }) {
   const precioWsp = producto.Pack > 0 ? `${producto.Pack} x ${formatPrecio(producto.Valor)}` : formatPrecio(producto.Valor);
   const wspMsg = encodeURIComponent(`Hola! Me interesa ${producto.NombreProducto} por ${precioWsp}, ¿sigue disponible?`);
 
-  return (
-    <Dialog
-      open
-      onClose={onClose}
-      maxWidth="xs"
-      fullWidth
-      disableScrollLock
-      PaperProps={{
-        sx: {
-          borderRadius: 4,
-          overflow: "hidden",
-          bgcolor: "#fff",
-          m: { xs: 1.5, sm: 3 },
-          boxShadow: "0 24px 60px rgba(0,0,0,0.18)",
-        },
-      }}
-    >
-      <Box sx={{ position: "relative" }}>
+  // Contenido compartido entre mobile (Drawer) y desktop (Dialog)
+  const contenido = (
+    <>
+      {/* ── Sección media (fija) ── */}
+      <Box sx={{ position: "relative", flexShrink: 0 }}>
 
-        {/* Botón cerrar */}
-        <IconButton
-          onClick={onClose}
-          size="small"
-          sx={{
-            position: "absolute", top: 10, right: 10, zIndex: 10,
-            bgcolor: "rgba(255,255,255,0.85)", backdropFilter: "blur(6px)",
-            color: "#444", boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-            "&:hover": { bgcolor: "#fff", color: "#111" },
-          }}
-        >
-          <CloseRoundedIcon sx={{ fontSize: 18 }} />
-        </IconButton>
+        {/* Handle mobile */}
+        {isMobile && (
+          <Box sx={{ display: "flex", justifyContent: "center", pt: 1, pb: 0.5 }}>
+            <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: "rgba(0,0,0,0.15)" }} />
+          </Box>
+        )}
+
+        {/* Botón cerrar (solo desktop) */}
+        {!isMobile && (
+          <IconButton
+            onClick={onClose}
+            size="small"
+            sx={{
+              position: "absolute", top: 10, right: 10, zIndex: 10,
+              bgcolor: "rgba(255,255,255,0.85)", backdropFilter: "blur(6px)",
+              color: "#444", boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+              "&:hover": { bgcolor: "#fff", color: "#111" },
+            }}
+          >
+            <CloseRoundedIcon sx={{ fontSize: 18 }} />
+          </IconButton>
+        )}
 
         {/* Flechas */}
         {tieneVideo && (
@@ -280,7 +278,7 @@ function ProductoDialog({ producto, onClose }) {
                 onClick={action}
                 size="small"
                 sx={{
-                  position: "absolute", [dir]: 10, top: "50%", transform: "translateY(-50%)", zIndex: 10,
+                  position: "absolute", [dir]: 10, top: isMobile ? "55%" : "50%", transform: "translateY(-50%)", zIndex: 10,
                   bgcolor: "rgba(255,255,255,0.85)", backdropFilter: "blur(6px)",
                   color: "#444", boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
                   "&:hover": { bgcolor: "#fff", color: "#111" },
@@ -293,21 +291,21 @@ function ProductoDialog({ producto, onClose }) {
         )}
 
         {/* Media */}
-        <Box sx={{ bgcolor: "#f7f7f7", minHeight: 280, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+        <Box sx={{ bgcolor: "#f7f7f7", height: { xs: 220, sm: 320 }, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
           <motion.div
             key={slide}
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.22, ease: "easeOut" }}
-            style={{ width: "100%", display: "flex", justifyContent: "center" }}
+            style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center" }}
           >
             {slides[slide] === "video" ? (
               <Box component="video" src={producto.VideoUrl} autoPlay muted loop playsInline
-                sx={{ width: "100%", display: "block", maxHeight: "58vh", objectFit: "contain" }}
+                sx={{ width: "100%", height: "100%", display: "block", objectFit: "contain" }}
               />
             ) : (
               <Box component="img" src={producto.ImageUrl} alt={producto.NombreProducto}
-                sx={{ width: "100%", display: "block", maxHeight: "58vh", objectFit: "contain" }}
+                sx={{ width: "100%", height: "100%", display: "block", objectFit: "contain" }}
               />
             )}
           </motion.div>
@@ -325,74 +323,126 @@ function ProductoDialog({ producto, onClose }) {
             ))}
           </Box>
         )}
+      </Box>
 
-        {/* Info */}
-        <Box sx={{ px: 2.5, pt: tieneVideo ? 1.2 : 2, pb: 2.5 }}>
-          {producto.Categoria && (
-            <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: "#c9783c", textTransform: "uppercase", letterSpacing: "0.1em", mb: 0.5, fontFamily: "'Poppins', sans-serif" }}>
-              {producto.Categoria}
+      {/* ── Sección info (scrolleable) ── */}
+      <Box sx={{ overflowY: "auto", flex: 1, px: 2.5, pt: tieneVideo ? 1.2 : 2, pb: 1.5 }}>
+        {producto.Categoria && (
+          <Typography sx={{ fontSize: "0.65rem", fontWeight: 700, color: "#c9783c", textTransform: "uppercase", letterSpacing: "0.1em", mb: 0.5, fontFamily: "'Poppins', sans-serif" }}>
+            {producto.Categoria}
+          </Typography>
+        )}
+        <Typography sx={{ color: "#111", fontWeight: 800, fontSize: { xs: "1rem", sm: "1.1rem" }, fontFamily: "'Poppins', sans-serif", lineHeight: 1.25, mb: 0.5 }}>
+          {producto.NombreProducto}
+        </Typography>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.2 }}>
+          <Typography sx={{ color: "#c9783c", fontWeight: 900, fontSize: { xs: "1.1rem", sm: "1.25rem" }, fontFamily: "'Poppins', sans-serif" }}>
+            {producto.Pack > 0 ? `${producto.Pack} x ${formatPrecio(producto.Valor)}` : formatPrecio(producto.Valor)}
+          </Typography>
+          {producto.ConDescuento && producto.ValorOriginal > 0 && (
+            <Typography sx={{ color: "#bbb", fontWeight: 500, fontSize: "0.82rem", textDecoration: "line-through", fontFamily: "'Poppins', sans-serif" }}>
+              {formatPrecio(producto.ValorOriginal)}
             </Typography>
           )}
-          <Typography sx={{ color: "#111", fontWeight: 800, fontSize: "1.05rem", fontFamily: "'Poppins', sans-serif", lineHeight: 1.25, mb: 0.5 }}>
-            {producto.NombreProducto}
-          </Typography>
-
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.2 }}>
-            <Typography sx={{ color: "#c9783c", fontWeight: 900, fontSize: "1.2rem", fontFamily: "'Poppins', sans-serif" }}>
-              {producto.Pack > 0 ? `${producto.Pack} x ${formatPrecio(producto.Valor)}` : formatPrecio(producto.Valor)}
-            </Typography>
-            {producto.ConDescuento && producto.ValorOriginal > 0 && (
-              <Typography sx={{ color: "#bbb", fontWeight: 500, fontSize: "0.82rem", textDecoration: "line-through", fontFamily: "'Poppins', sans-serif" }}>
-                {formatPrecio(producto.ValorOriginal)}
-              </Typography>
-            )}
-          </Box>
-
-          <Typography sx={{
-            color: producto.Descripcion?.trim() ? "#555" : "#ccc",
-            fontSize: "0.78rem", fontFamily: "'Poppins', sans-serif",
-            lineHeight: 1.6, mb: 2,
-            fontStyle: producto.Descripcion?.trim() ? "normal" : "italic",
-          }}>
-            {producto.Descripcion?.trim() || "Sin descripción"}
-          </Typography>
-
-          <Button
-            component="a"
-            href={`https://wa.me/${WSP}?text=${wspMsg}`}
-            target="_blank" rel="noopener noreferrer"
-            variant="contained" fullWidth
-            sx={{
-              position: "relative", overflow: "hidden",
-              background: "linear-gradient(135deg, #25D366 0%, #128C7E 100%)",
-              "&:hover": {
-                background: "linear-gradient(135deg, #2edc6f 0%, #0fa070 100%)",
-                boxShadow: "0 8px 28px rgba(37,211,102,0.55)",
-                transform: "translateY(-1px)",
-              },
-              borderRadius: 2.5, textTransform: "none", fontWeight: 800,
-              fontSize: "0.95rem", py: 1.4, letterSpacing: "0.02em",
-              boxShadow: "0 4px 18px rgba(37,211,102,0.4)",
-              transition: "all 0.2s ease",
-              "&::after": {
-                content: '""',
-                position: "absolute",
-                top: 0, left: "-100%",
-                width: "60%", height: "100%",
-                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
-                animation: "btnShine 2.8s infinite",
-              },
-              "@keyframes btnShine": {
-                "0%":   { left: "-100%" },
-                "60%":  { left: "200%" },
-                "100%": { left: "200%" },
-              },
-            }}
-          >
-            Comprar
-          </Button>
         </Box>
+
+        <Typography sx={{
+          color: producto.Descripcion?.trim() ? "#555" : "#ccc",
+          fontSize: "0.82rem", fontFamily: "'Poppins', sans-serif",
+          lineHeight: 1.65, mb: 1,
+          fontStyle: producto.Descripcion?.trim() ? "normal" : "italic",
+          whiteSpace: "pre-line",
+        }}>
+          {producto.Descripcion?.trim() || "Sin descripción"}
+        </Typography>
       </Box>
+
+      {/* ── Botón comprar (siempre visible) ── */}
+      <Box sx={{
+        flexShrink: 0, px: 2.5, pt: 1.5, pb: { xs: 3, sm: 2.5 },
+        borderTop: "1px solid rgba(0,0,0,0.07)",
+        bgcolor: "#fff",
+      }}>
+        <Button
+          component="a"
+          href={`https://wa.me/${WSP}?text=${wspMsg}`}
+          target="_blank" rel="noopener noreferrer"
+          variant="contained" fullWidth
+          sx={{
+            position: "relative", overflow: "hidden",
+            background: "linear-gradient(135deg, #25D366 0%, #128C7E 100%)",
+            "&:hover": {
+              background: "linear-gradient(135deg, #2edc6f 0%, #0fa070 100%)",
+              boxShadow: "0 8px 28px rgba(37,211,102,0.55)",
+              transform: "translateY(-1px)",
+            },
+            borderRadius: 2.5, textTransform: "none", fontWeight: 800,
+            fontSize: "0.95rem", py: 1.4, letterSpacing: "0.02em",
+            boxShadow: "0 4px 18px rgba(37,211,102,0.4)",
+            transition: "all 0.2s ease",
+            "&::after": {
+              content: '""', position: "absolute",
+              top: 0, left: "-100%", width: "60%", height: "100%",
+              background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+              animation: "btnShine 2.8s infinite",
+            },
+            "@keyframes btnShine": {
+              "0%": { left: "-100%" }, "60%": { left: "200%" }, "100%": { left: "200%" },
+            },
+          }}
+        >
+          Comprar
+        </Button>
+      </Box>
+    </>
+  );
+
+  // ── Mobile: bottom sheet ──
+  if (isMobile) {
+    return (
+      <Drawer
+        anchor="bottom"
+        open
+        onClose={onClose}
+        disableScrollLock
+        PaperProps={{
+          sx: {
+            borderRadius: "20px 20px 0 0",
+            maxHeight: "88dvh",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          },
+        }}
+      >
+        {contenido}
+      </Drawer>
+    );
+  }
+
+  // ── Desktop: dialog centrado más ancho ──
+  return (
+    <Dialog
+      open
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+      disableScrollLock
+      PaperProps={{
+        sx: {
+          borderRadius: 4,
+          overflow: "hidden",
+          bgcolor: "#fff",
+          m: 3,
+          maxHeight: "90vh",
+          display: "flex",
+          flexDirection: "column",
+          boxShadow: "0 24px 60px rgba(0,0,0,0.18)",
+        },
+      }}
+    >
+      {contenido}
     </Dialog>
   );
 }
