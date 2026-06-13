@@ -1018,31 +1018,40 @@ const ConfigurarProductos = () => {
                     onChange={async (e) => {
                       const file = e.target.files[0];
                       if (!file) return;
+
                       const previewUrl = URL.createObjectURL(file);
                       setPreviewVideo(previewUrl);
                       setSubiendoVideo(true);
-                      const reader = new FileReader();
-                      reader.onloadend = async () => {
-                        try {
-                          const base64 = reader.result.split(',')[1];
-                          const res = await fetch(`${functionsBaseUrl}/.netlify/functions/subirVideoProducto`, {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ fileBase64: base64, contentType: file.type, productoId: nuevoProducto.IdProducto }),
-                          });
-                          if (!res.ok) throw new Error('Error al subir video');
-                          const { url } = await res.json();
-                          setNuevoProducto((prev) => ({ ...prev, VideoUrl: url }));
-                          setSubiendoVideo(false);
-                          setVideoActualizado(true);
-                          setTimeout(() => setVideoActualizado(false), 2500);
-                        } catch (err) {
-                          console.error(err);
-                          setSnackbar({ open: true, message: 'Error al subir el video' });
-                          setPreviewVideo(null);
-                          setSubiendoVideo(false);
-                        } finally { URL.revokeObjectURL(previewUrl); }
-                      };
-                      reader.readAsDataURL(file);
+
+                      try {
+                        // 1. Obtener URL firmada de S3 (no pasa el archivo por Netlify)
+                        const sigRes = await fetch(`${functionsBaseUrl}/.netlify/functions/generarUrlFirmaVideo`, {
+                          method: 'POST', headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ productoId: nuevoProducto.IdProducto, contentType: file.type }),
+                        });
+                        if (!sigRes.ok) throw new Error('Error al obtener URL de subida');
+                        const { signedUrl, url } = await sigRes.json();
+
+                        // 2. Subir el archivo directo a S3 desde el browser
+                        const uploadRes = await fetch(signedUrl, {
+                          method: 'PUT',
+                          headers: { 'Content-Type': file.type },
+                          body: file,
+                        });
+                        if (!uploadRes.ok) throw new Error('Error al subir video a S3');
+
+                        setNuevoProducto((prev) => ({ ...prev, VideoUrl: url }));
+                        setSubiendoVideo(false);
+                        setVideoActualizado(true);
+                        setTimeout(() => setVideoActualizado(false), 2500);
+                      } catch (err) {
+                        console.error(err);
+                        setSnackbar({ open: true, message: 'Error al subir el video' });
+                        setPreviewVideo(null);
+                        setSubiendoVideo(false);
+                      } finally {
+                        URL.revokeObjectURL(previewUrl);
+                      }
                     }}
                   />
                   <AnimatePresence>
